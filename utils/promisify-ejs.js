@@ -7,7 +7,7 @@ const ejs = require("ejs");
  * @param data Object of parameters to be injected into ejs
  */
 
-module.exports = function(path, data) {
+module.exports = function(path, data = {}) {
     return new Promise(function(resolve, reject) {
         ejs.renderFile(path, data, function(err, str) {
             if (err) return reject(err);
