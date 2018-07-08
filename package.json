@@ -1,5 +1,5 @@
 {
-    "name": "express-record",
+    "name": "agile-model",
     "version": "0.1.0",
     "description": "This module initializes an express application with the ObjectionJS ORM. It can also mimics Rails' ActiveRecord to generate models, migrations and associating database CRUD files and structure",
     "main": "./bin/index.js",
@@ -7,11 +7,11 @@
         "test": "mocha --recursive --exit"
     },
     "bin": {
-        "express-record": "./bin/index.js"
+        "agile-model": "./bin/index.js"
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/kwameopareasiedu/express-record.git"
+        "url": "git+https://github.com/kwameopareasiedu/agile-model.git"
     },
     "keywords": [
         "express",
@@ -22,9 +22,9 @@
     "author": "Kwame Opare Asiedu",
     "license": "GPL-3.0",
     "bugs": {
-        "url": "https://github.com/kwameopareasiedu/express-record/issues"
+        "url": "https://github.com/kwameopareasiedu/agile-model/issues"
     },
-    "homepage": "https://github.com/kwameopareasiedu/express-record#readme",
+    "homepage": "https://github.com/kwameopareasiedu/agile-model#readme",
     "dependencies": {
         "chalk": "^2.4.1",
         "cli-spinner": "^0.2.8",
