@@ -1,5 +1,4 @@
 module.exports = {
-    copy: require("./copy"),
     read: require("./read"),
     write: require("./write"),
     createFile: require("./create-file"),

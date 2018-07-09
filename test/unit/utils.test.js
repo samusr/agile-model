@@ -1,4 +1,4 @@
-const { assert, should } = require("chai");
+const { assert } = require("chai");
 const utils = require("../../utils");
 
 describe("Utils Tests", function() {
@@ -46,19 +46,6 @@ describe("Utils Tests", function() {
     it("should create a folder", async function() {
         await utils.createFolder(testFolderPath);
         assert.equal(utils.pathExists(testFolderPath), true);
-    });
-
-    it("should copy a single file", async function() {
-        await utils.copy(copyTestSrcPaths[0], copyTestDestPaths[0]);
-        assert.equal(utils.pathExists(copyTestDestPaths[0]), true);
-    });
-
-    it("should copy multiple files", async function() {
-        await utils.copy(copyTestSrcPaths, copyTestDestPaths);
-
-        for (let path of copyTestDestPaths) {
-            assert.equal(utils.pathExists(path), true);
-        }
     });
 
     it("should read a file", function(done) {
