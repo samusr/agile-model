@@ -1,0 +1,11 @@
+const <%= modelName %> = require("../../../models/<%= modelFileName %>");
+
+module.exports = function(id, relationString = "") {
+    return <%= modelName %>.query()
+        .where({
+            id: id
+        })
+        .eager(relationString)
+        .returning("*")
+        .first();
+};
