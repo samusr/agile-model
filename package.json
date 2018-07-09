@@ -1,6 +1,6 @@
 {
     "name": "agile-model",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "This module initializes an express application with the ObjectionJS ORM. It can also mimics Rails' ActiveRecord to generate models, migrations and associating database CRUD files and structure",
     "main": "./bin/index.js",
     "scripts": {
