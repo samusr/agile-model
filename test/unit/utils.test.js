@@ -1,29 +1,19 @@
+const path = require("path");
 const { assert } = require("chai");
 const utils = require("../../utils");
 
 describe("Utils Tests", function() {
     let testFilePath = `${__dirname}\\test-file-1.test`;
     let testFolderPath = `${__dirname}\\test-folder-1`;
-    let copyTestSrcPaths = [`${__dirname}\\test-file-20.test`, `${__dirname}\\test-file-21.test`];
-    let copyTestDestPaths = [`${__dirname}\\copy\\test-file-20.test`, `${__dirname}\\copy\\test-file-21.test`];
 
     before(async function() {
-        await utils.createFolder(`${__dirname}\\copy`);
-
-        for (let path of copyTestSrcPaths) {
-            await utils.createFile(path);
-        }
+        await utils.deletePath(testFilePath);
+        await utils.deletePath(testFolderPath);
     });
 
     after(async function() {
         await utils.deletePath(testFilePath);
         await utils.deletePath(testFolderPath);
-
-        for (let path of copyTestSrcPaths.concat(copyTestDestPaths)) {
-            await utils.deletePath(path);
-        }
-
-        await utils.deletePath(`${__dirname}\\copy`);
     });
 
     it("it should match this platform", function() {
@@ -50,11 +40,17 @@ describe("Utils Tests", function() {
 
     it("should read a file", function(done) {
         utils
-            .read(copyTestDestPaths[0])
+            .read(testFilePath)
             .then(function(err) {
                 if (err) return done(err);
                 done();
             })
             .catch(err => done(err));
+    });
+
+    it("should read folders at a path", async function() {
+        let files = await utils.readFolders(path.join(process.cwd(), "/test/unit"));
+        console.log(files);
+        assert.notEqual(files.length, 0);
     });
 });

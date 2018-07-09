@@ -3,3 +3,13 @@ node_modules
 package-lock.json
 
 *.bat
+
+models
+
+migrations
+
+services
+
+config
+
+knexfile.js

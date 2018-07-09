@@ -1,5 +1,6 @@
 module.exports = {
     read: require("./read"),
+    readFolders: require("./read-folders"),
     write: require("./write"),
     createFile: require("./create-file"),
     createFolder: require("./create-folder"),
