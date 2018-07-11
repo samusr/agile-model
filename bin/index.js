@@ -2,25 +2,38 @@
 
 const commander = require("commander");
 const init = require("../lib/init");
+const setup = require("../lib/setup");
 const generate = require("../lib/generate");
+
+// commander.command("init").description("Creates the agility.js file at the root of the project").action(init);
 
 commander
     .command("init")
-    .description(
-        "Initializes the project with the objection config file, sets up the 'services/db/index.js' file and adds /models and /migrations folders"
-    )
-    .option("-e, --env [value]", "The desired node environment string.", "development")
-    .option("-d, --database [value]", "The database client to install.", "pg")
+    .description("Creates the agility.js file at the root of the project.")
     .action(init);
 
 commander
+    .command("setup")
+    .description(
+        "Sets the project up with an objection config file, services, models and migrations folders.\n\t\t\t\t    " +
+            "If there's an agility.js file in the root, it is used to setup the models and relations."
+    )
+    .option("-d, --database [value]", "The database client to install.", "pg")
+    .action(setup);
+
+commander
     .command("generate <modelname>")
-    .description("Generates a model file, associated database CRUD files then modifies the database index file to include the new group")
+    .description("Generates a model and associated database and migration files.")
     .option(
         "-t, --tablename [value]",
         "The table name to use for this model (This is used in the migration file name as well). If this is not specified, a plural form of the model name will be used"
     )
-    .option("-l, --no-lowercase", "Do not use a lower case hyphenated naming for the model (eg. new-registration.js)")
     .action(generate);
 
 commander.parse(process.argv);
+
+// console.log(
+//     JSON.stringify(
+//         require("../lib/generate-model-graph")(["user", "post", "comment", "admin"], "user HAS_MANY [post comment], post HAS_MANY comment")
+//     )
+// );
