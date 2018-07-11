@@ -24,10 +24,6 @@ commander
 commander
     .command("generate <modelname>")
     .description("Generates a model and associated database and migration files.")
-    .option(
-        "-t, --tablename [value]",
-        "The table name to use for this model (This is used in the migration file name as well). If this is not specified, a plural form of the model name will be used"
-    )
     .action(generate);
 
 commander.parse(process.argv);
