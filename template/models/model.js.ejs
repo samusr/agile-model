@@ -1,7 +1,28 @@
 const Model = require("../config/objection");
 
-module.exports = class <%= modelName %> extends Model {
+module.exports = class <%= model.name %> extends Model {
     static get tableName() {
-        return "<%= tableName %>";
-    }
+        return "<%= model.table %>";
+    }<% if (model.relations && model.relations.length > 0) { %>
+
+    static get relationMappings() {
+        return {<% for (let relation of model.relations) {  if (relation.relation == "HAS_MANY") { %>
+            <%= relation.name %>: {
+                relation: Model.HasManyRelation,
+                modelClass: require("./<%= relation.file %>"),
+                join: {
+                    from: "<%= relation.join[0] %>",
+                    to: "<%= relation.join[1] %>"
+                }
+            },<% } else if (relation.relation == "BELONGS_TO_ONE") { %>
+            <%= relation.name %>: {
+                relation: Model.BelongsToOneRelation,
+                modelClass: require("./<%= relation.file %>"),
+                join: {
+                    from: "<%= relation.join[0] %>",
+                    to: "<%= relation.join[1] %>"
+                }
+            },<% }} %>
+        }
+    }<% } %>
 };
