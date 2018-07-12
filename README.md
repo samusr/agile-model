@@ -109,6 +109,10 @@ If you discover any errors or malfunctions, please don't hesitate to open a issu
 
 # Changelog
 
+### v1.0.1
+
+-   Updated Readme
+
 ### v1.0.0
 
 -   Removed options from commands

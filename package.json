@@ -1,6 +1,6 @@
 {
     "name": "agile-model",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "This module initializes a NodeJS application with the ObjectionJS ORM. It can also performs scaffolding. This is where it generates migrations and associating database files for models. This is inspired by Rails' ActiveRecord",
     "main": "./bin/index.js",
     "scripts": {
