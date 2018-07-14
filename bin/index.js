@@ -19,17 +19,17 @@ commander
             "If there's an agility.js file in the root, it is used to setup the models and relations."
     )
     .option("-d, --database [value]", "The database client to install.", "pg")
+    .option("-e, --ext [value]", "The extension to use for the view files", "ejs")
+    .option("--no-routes", "Skips the creation of route folders and files")
+    .option("--no-views", "Skips the creation of view folders and files")
     .action(setup);
 
 commander
     .command("generate <modelname>")
     .description("Generates a model and associated database and migration files.")
+    .option("-e, --ext [value]", "The extension to use for the view files", "ejs")
+    .option("--no-routes", "Skips the creation of route folders and files")
+    .option("--no-views", "Skips the creation of view folders and files")
     .action(generate);
 
 commander.parse(process.argv);
-
-// console.log(
-//     JSON.stringify(
-//         require("../lib/generate-model-graph")(["user", "post", "comment", "admin"], "user HAS_MANY [post comment], post HAS_MANY comment")
-//     )
-// );
