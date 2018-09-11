@@ -4,7 +4,8 @@
 	"description": "agile-model is a model-controller framework designed to ease the process of setting up a PERN (PostgreSQL, Express, React, NodeJS) project",
 	"main": "./bin/index.js",
 	"scripts": {
-		"test": "mocha --recursive --exit"
+		"test": "mocha --recursive --exit",
+		"watch": "tsc --watch"
 	},
 	"bin": {
 		"agile-model": "./bin/index.js"
@@ -41,7 +42,9 @@
 		"pluralize": "^7.0.0"
 	},
 	"devDependencies": {
+		"@types/node": "^10.9.4",
 		"chai": "^4.1.2",
-		"mocha": "^5.2.0"
+		"mocha": "^5.2.0",
+		"typescript": "^3.0.3"
 	}
 }

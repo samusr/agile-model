@@ -1,28 +1,34 @@
 #!/usr/bin/env node
 
 const commander = require("commander");
-const init = require("../lib/init");
-const setup = require("../lib/setup");
-const generate = require("../lib/generate");
+const generateModelGraph = require("../dist/lib/generate-model-graph");
 
-// commander.command("init").description("Creates the agility.js file at the root of the project").action(init);
+let agi = {
+	models: ["user", "post", "comment"],
+	relations: "user HAS_MANY [post comment], post HAS_MANY comment"
+};
 
-commander
-	.command("init")
-	.description("Creates the agility.js file at the root of the project.")
-	.action(init);
+console.log(generateModelGraph(agi.models, agi.relations).toString());
+// const init = require("../lib/init");
+// const setup = require("../lib/setup");
+// const generate = require("../lib/generate");
 
-commander
-	.command("setup")
-	.description(
-		"Sets the project up with an objection config file, services, models and migrations folders.\n\t\t\t\t    " +
-			"If there's an agility.js file in the root, it is used to setup the models and relations."
-	)
-	.action(setup);
+// commander
+// 	.command("init")
+// 	.description("Creates the agility.js file at the root of the project.")
+// 	.action(init);
 
-commander
-	.command("generate <entity>")
-	.description("Generates a model and associated database and migration files.")
-	.action(generate);
+// commander
+// 	.command("setup")
+// 	.description(
+// 		"Sets the project up with an objection config file, services, models and migrations folders.\n\t\t\t\t    " +
+// 			"If there's an agility.js file in the root, it is used to setup the models and relations."
+// 	)
+// 	.action(setup);
 
-commander.parse(process.argv);
+// commander
+// 	.command("generate <entity>")
+// 	.description("Generates a model and associated database and migration files.")
+// 	.action(generate);
+
+// commander.parse(process.argv);

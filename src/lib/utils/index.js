@@ -8,5 +8,6 @@ const readFolder = require("./read-folder");
 const renderEJS = require("./render-ejs");
 const spinner = require("./spinner");
 const writeToFile = require("./write-to-file");
+const generateNames = require("./generate-names");
 
-module.exports = { createFile, createFolder, deleteFile, log, pathExists, readFile, readFolder, renderEJS, spinner, writeToFile };
+module.exports = { createFile, createFolder, deleteFile, log, pathExists, readFile, readFolder, renderEJS, spinner, writeToFile, generateNames };
