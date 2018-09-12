@@ -29,6 +29,7 @@ module.exports = function (modelNames, relationString) {
     // Add models which were not mentioned in the relationString.
     // Since createModelGraph deals with the relations, those models are skipped
     var finalGraph = addMissingModels(mergedGraph, models);
+    sortModelGraph(finalGraph);
     return finalGraph;
 };
 // @ts-ignore: Can't find Model, Relation
@@ -67,13 +68,13 @@ var createModelGraph = function (models, relationString) {
             // Determine the relation type
             var relationType = void 0;
             switch (relationTypeString) {
-                case "HAS_ONE":
+                case HAS_ONE.type:
                     relationType = HAS_ONE;
                     break;
-                case "HAS_MANY":
+                case HAS_MANY.type:
                     relationType = HAS_MANY;
                     break;
-                case "BELONGS_TO_ONE":
+                case BELONGS_TO_ONE.type:
                     relationType = BELONGS_TO_ONE;
                     break;
                 default:
@@ -271,5 +272,54 @@ var addMissingModels = function (graph, models) {
 // @ts-ignore: Can't find Relation
 var sortModelGraph = function (graph) {
     // The sorting is necessary to prevent migration issues when using knex.
-    // Models with least dependencies
+    // This is issue is where model A depends on model B but is still created BEFORE model B
+    var sortedModelGraph = [];
+    var relationsWithDependents = graph.filter(function (relation) { return relation.relationType.type != BELONGS_TO_ONE.type; });
+    var relationsWithDependencies = graph.filter(function (relation) { return relation.relationType.type == BELONGS_TO_ONE.type; });
+    var _loop_3 = function () {
+        var relation = relationsWithDependents.pop();
+        // If source model has dependencies, put it back in the array and continue
+        var belongsToEntries = relationsWithDependencies.filter(function (rel) { return relation.sourceModel.modelName == rel.sourceModel.modelName; });
+        var relationHasDependencies = belongsToEntries.length != 0;
+        if (relationHasDependencies) {
+            // Check if all the dependencies are in the sorted graph
+            var allDependenciesAreInSortedGraph = true;
+            for (var _i = 0, belongsToEntries_1 = belongsToEntries; _i < belongsToEntries_1.length; _i++) {
+                var belongsToEntry = belongsToEntries_1[_i];
+                for (var _a = 0, _b = belongsToEntry.dependencyModels; _a < _b.length; _a++) {
+                    var dependencyModel = _b[_a];
+                    var dependencyIsInSortedGraph = false;
+                    for (var _c = 0, sortedModelGraph_1 = sortedModelGraph; _c < sortedModelGraph_1.length; _c++) {
+                        var sortedRelation = sortedModelGraph_1[_c];
+                        if (dependencyModel.modelName == sortedRelation.sourceModel.modelName) {
+                            dependencyIsInSortedGraph = true;
+                            break;
+                        }
+                    }
+                    if (!dependencyIsInSortedGraph) {
+                        allDependenciesAreInSortedGraph = false;
+                        break;
+                    }
+                }
+            }
+            // If all dependencies exist, add relation to sorted graph...
+            if (allDependenciesAreInSortedGraph) {
+                sortedModelGraph.push(relation);
+            }
+            else {
+                // ... else push it back to the relationsWithDependents array
+                relationsWithDependents.unshift(relation);
+            }
+        }
+        else {
+            // If relation does not have dependencies, add it to the sorted graph
+            sortedModelGraph.push(relation);
+        }
+    };
+    while (relationsWithDependents.length != 0) {
+        _loop_3();
+    }
+    sortedModelGraph = sortedModelGraph.concat(relationsWithDependencies);
+    console.log(sortedModelGraph.toString());
+    return sortedModelGraph;
 };

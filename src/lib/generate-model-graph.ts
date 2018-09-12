@@ -38,7 +38,9 @@ module.exports = (modelNames: Array<string>, relationString: string): Array<Rela
 
 	// Add models which were not mentioned in the relationString.
 	// Since createModelGraph deals with the relations, those models are skipped
-	const finalGraph = addMissingModels(mergedGraph, models);
+	let finalGraph = addMissingModels(mergedGraph, models);
+
+	sortModelGraph(finalGraph);
 
 	return finalGraph;
 };
@@ -85,13 +87,13 @@ const createModelGraph = (models: Array<Model>, relationString: string = ""): Ar
 			// Determine the relation type
 			let relationType;
 			switch (relationTypeString) {
-				case "HAS_ONE":
+				case HAS_ONE.type:
 					relationType = HAS_ONE;
 					break;
-				case "HAS_MANY":
+				case HAS_MANY.type:
 					relationType = HAS_MANY;
 					break;
-				case "BELONGS_TO_ONE":
+				case BELONGS_TO_ONE.type:
 					relationType = BELONGS_TO_ONE;
 					break;
 				default:
@@ -298,5 +300,56 @@ const addMissingModels = (graph: Array<Relation>, models: Array<Models>): Array<
 // @ts-ignore: Can't find Relation
 const sortModelGraph = (graph: Array<Relation>): Array<Relation> => {
 	// The sorting is necessary to prevent migration issues when using knex.
-	// Models with least dependencies
+	// This is issue is where model A depends on model B but is still created BEFORE model B
+	let sortedModelGraph = [];
+
+	const relationsWithDependents = graph.filter(relation => relation.relationType.type != BELONGS_TO_ONE.type);
+	const relationsWithDependencies = graph.filter(relation => relation.relationType.type == BELONGS_TO_ONE.type);
+
+	while (relationsWithDependents.length != 0) {
+		const relation = relationsWithDependents.pop();
+
+		// If source model has dependencies, put it back in the array and continue
+		const belongsToEntries = relationsWithDependencies.filter(rel => relation.sourceModel.modelName == rel.sourceModel.modelName);
+		const relationHasDependencies = belongsToEntries.length != 0;
+
+		if (relationHasDependencies) {
+			// Check if all the dependencies are in the sorted graph
+			let allDependenciesAreInSortedGraph = true;
+
+			for (const belongsToEntry of belongsToEntries) {
+				for (const dependencyModel of belongsToEntry.dependencyModels) {
+					let dependencyIsInSortedGraph = false;
+
+					for (const sortedRelation of sortedModelGraph) {
+						if (dependencyModel.modelName == sortedRelation.sourceModel.modelName) {
+							dependencyIsInSortedGraph = true;
+							break;
+						}
+					}
+
+					if (!dependencyIsInSortedGraph) {
+						allDependenciesAreInSortedGraph = false;
+						break;
+					}
+				}
+			}
+
+			// If all dependencies exist, add relation to sorted graph...
+			if (allDependenciesAreInSortedGraph) {
+				sortedModelGraph.push(relation);
+			} else {
+				// ... else push it back to the relationsWithDependents array
+				relationsWithDependents.unshift(relation);
+			}
+		} else {
+			// If relation does not have dependencies, add it to the sorted graph
+			sortedModelGraph.push(relation);
+		}
+	}
+
+	sortedModelGraph = sortedModelGraph.concat(relationsWithDependencies);
+
+	console.log(sortedModelGraph.toString());
+	return sortedModelGraph;
 };
