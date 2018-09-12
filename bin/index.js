@@ -5,7 +5,7 @@ const generateModelGraph = require("../dist/lib/generate-model-graph");
 
 let agi = {
 	models: ["user", "post", "comment"],
-	relations: "user HAS_MANY [post comment], post HAS_MANY comment"
+	relations: "user HAS_MANY [post comment], post HAS_MANY comment, post HAS_ONE user, comment HAS_MANY user"
 };
 
 console.log(generateModelGraph(agi.models, agi.relations).toString());

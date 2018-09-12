@@ -10,11 +10,11 @@ module.exports = (() => {
 			switch (this.type) {
 				case "HAS_ONE":
 				case "HAS_MANY":
-					return "BELONGS_TO_ONE";
-				case "MANY_TO_MANY":
-					return "MANY_TO_MANY";
+					return new RelationType("BELONGS_TO_ONE");
+				case "BELONGS_TO_ONE":
+					return new RelationType("HAS_MANY");
 				default:
-					throw new Error(`Unsupported relation type [${this.type}]`);
+					throw `Unsupported relation type [${this.type}]`;
 			}
 		}
 	}
@@ -52,6 +52,7 @@ module.exports = (() => {
 
 	const HAS_ONE = new RelationType("HAS_ONE");
 	const HAS_MANY = new RelationType("HAS_MANY");
+	const BELONGS_TO_ONE = new RelationType("BELONGS_TO_ONE");
 
-	return { Relation, HAS_ONE, HAS_MANY };
+	return { Relation, HAS_ONE, HAS_MANY, BELONGS_TO_ONE };
 })();

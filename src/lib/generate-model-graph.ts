@@ -1,5 +1,5 @@
 const Model = require("./models/Model");
-const { Relation, HAS_ONE, HAS_MANY } = require("./models/Relation");
+const { Relation, HAS_ONE, HAS_MANY, BELONGS_TO_ONE } = require("./models/Relation");
 const {
 	generateNames: { generateModelName, generateModelFilename, generateTablename, getInitialCamelCase }
 } = require("./utils");
@@ -28,7 +28,13 @@ module.exports = (modelNames: Array<string>, relationString: string): Array<Rela
 	const resolvedModelGraph = resolveCircularReferences(firstModelGraph);
 
 	// Merge both graphs
-	const mergedGraph = mergeModelGraphs(firstModelGraph, resolvedModelGraph);
+	let mergedGraph = mergeModelGraphs(firstModelGraph, resolvedModelGraph);
+
+	// Determine what the reverse relations of the graph should be (i.e. If user HAS_MANY post, then post BELONGS_TO_ONE user)
+	const reversedModelGraph = createModelGraphWithReversedRelations(mergedGraph);
+
+	// Merge both original graphs to the reversed relationship graph
+	mergedGraph = mergeModelGraphs(mergedGraph, reversedModelGraph);
 
 	// Add models which were not mentioned in the relationString.
 	// Since createModelGraph deals with the relations, those models are skipped
@@ -38,7 +44,7 @@ module.exports = (modelNames: Array<string>, relationString: string): Array<Rela
 };
 
 // @ts-ignore: Can't find Model, Relation
-const createModelGraph = (models: Array<Model>, relationString = ""): Array<Relation> => {
+const createModelGraph = (models: Array<Model>, relationString: string = ""): Array<Relation> => {
 	if (models.length == 0) return [];
 
 	// Parse the relation string into an array
@@ -85,9 +91,9 @@ const createModelGraph = (models: Array<Model>, relationString = ""): Array<Rela
 				case "HAS_MANY":
 					relationType = HAS_MANY;
 					break;
-				// case "MANY_TO_MANY":
-				// 	relationType = MANY_TO_MANY;
-				// 	break;
+				case "BELONGS_TO_ONE":
+					relationType = BELONGS_TO_ONE;
+					break;
 				default:
 					throw `Unknown forward relation "${relationTypeString}"`;
 			}
@@ -110,21 +116,37 @@ const createModelGraph = (models: Array<Model>, relationString = ""): Array<Rela
 	return graph;
 };
 
+// @ts-ignore: Can't find Model, Relation
+const createModelGraphWithReversedRelations = (modelGraph: Array<Relation>): Array<Relation> => {
+	const reversedModelGraph = [];
+
+	// Loop through each relation
+	for (const relation of modelGraph) {
+		let relationType = relation.relationType.getReverse();
+
+		for (const model of relation.dependentModels) {
+			// Create a new relation, if no existing relation a matching source model and relation type is found
+			let modelRelationMatchFoundInGraph = false;
+
+			for (const existingRelation of reversedModelGraph) {
+				if (existingRelation.sourceModel == model && existingRelation.relationType == relationType) {
+					existingRelation.addDependentModel(relation.sourceModel);
+					modelRelationMatchFoundInGraph = true;
+					break;
+				}
+			}
+
+			if (!modelRelationMatchFoundInGraph) reversedModelGraph.push(new Relation(model, relation.sourceModel, relationType));
+		}
+	}
+
+	return reversedModelGraph;
+};
+
 // @ts-ignore: Can't find Relation
 const resolveCircularReferences = (modelGraph: Array<Relation>): Array<Relation> => {
 	// First, we need to get an array of one to one correspondence between model and dependent
-	let flattenedGraph = [];
-
-	for (const relation of modelGraph) {
-		for (const model of relation.dependentModels) {
-			flattenedGraph.push({
-				source: relation.sourceModel,
-				type: relation.relationType.type,
-				target: model,
-				isCircularWith: null
-			});
-		}
-	}
+	let flattenedGraph = flattenGraph(modelGraph);
 
 	// Crosscheck each element with every other element and check for circular dependencies
 	for (const object1 of flattenedGraph) {
@@ -183,20 +205,40 @@ const resolveCircularReferences = (modelGraph: Array<Relation>): Array<Relation>
 		}
 	}
 
+	// Begin the relation string translation for source models
 	let newRelationString = newModelRelations.reduce((acc, relation) => `${acc} ${relation.source.modelName} HAS_MANY ${relation.newModelName},`, "");
 
+	// Continue the relation string translation for dependent models
 	newRelationString = newModelRelations.reduce(
 		(acc, relation) => `${acc} ${relation.target.modelName} HAS_MANY ${relation.newModelName},`,
 		newRelationString
 	);
 
+	// Trim and add beginning and ending brackets
 	newRelationString = newRelationString.trim();
-
 	newRelationString = "[" + newRelationString.substring(0, newRelationString.length - 1) + "]";
 
 	const newModels = newModelNames.map(name => new Model(name));
 
 	return createModelGraph(newModels, newRelationString);
+};
+
+// @ts-ignore: Can't find Relation
+const flattenGraph = (graph: Array<Relation>): Array<Relation> => {
+	let flattenedGraph = [];
+
+	for (const relation of graph) {
+		for (const model of relation.dependentModels) {
+			flattenedGraph.push({
+				source: relation.sourceModel,
+				type: relation.relationType.type,
+				target: model,
+				isCircularWith: null
+			});
+		}
+	}
+
+	return flattenedGraph;
 };
 
 // @ts-ignore: Can't find Relation

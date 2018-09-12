@@ -1,5 +1,5 @@
 var Model = require("./models/Model");
-var _a = require("./models/Relation"), Relation = _a.Relation, HAS_ONE = _a.HAS_ONE, HAS_MANY = _a.HAS_MANY;
+var _a = require("./models/Relation"), Relation = _a.Relation, HAS_ONE = _a.HAS_ONE, HAS_MANY = _a.HAS_MANY, BELONGS_TO_ONE = _a.BELONGS_TO_ONE;
 var _b = require("./utils").generateNames, generateModelName = _b.generateModelName, generateModelFilename = _b.generateModelFilename, generateTablename = _b.generateTablename, getInitialCamelCase = _b.getInitialCamelCase;
 /**
  * This takes the models array and relation string specified in an agility.js file
@@ -22,6 +22,10 @@ module.exports = function (modelNames, relationString) {
     var resolvedModelGraph = resolveCircularReferences(firstModelGraph);
     // Merge both graphs
     var mergedGraph = mergeModelGraphs(firstModelGraph, resolvedModelGraph);
+    // Determine what the reverse relations of the graph should be (i.e. If user HAS_MANY post, then post BELONGS_TO_ONE user)
+    var reversedModelGraph = createModelGraphWithReversedRelations(mergedGraph);
+    // Merge both original graphs to the reversed relationship graph
+    mergedGraph = mergeModelGraphs(mergedGraph, reversedModelGraph);
     // Add models which were not mentioned in the relationString.
     // Since createModelGraph deals with the relations, those models are skipped
     var finalGraph = addMissingModels(mergedGraph, models);
@@ -69,9 +73,9 @@ var createModelGraph = function (models, relationString) {
                 case "HAS_MANY":
                     relationType = HAS_MANY;
                     break;
-                // case "MANY_TO_MANY":
-                // 	relationType = MANY_TO_MANY;
-                // 	break;
+                case "BELONGS_TO_ONE":
+                    relationType = BELONGS_TO_ONE;
+                    break;
                 default:
                     throw "Unknown forward relation \"" + relationTypeString + "\"";
             }
@@ -100,27 +104,40 @@ var createModelGraph = function (models, relationString) {
     }
     return graph;
 };
+// @ts-ignore: Can't find Model, Relation
+var createModelGraphWithReversedRelations = function (modelGraph) {
+    var reversedModelGraph = [];
+    // Loop through each relation
+    for (var _i = 0, modelGraph_1 = modelGraph; _i < modelGraph_1.length; _i++) {
+        var relation = modelGraph_1[_i];
+        var relationType = relation.relationType.getReverse();
+        for (var _a = 0, _b = relation.dependentModels; _a < _b.length; _a++) {
+            var model = _b[_a];
+            // Create a new relation, if no existing relation a matching source model and relation type is found
+            var modelRelationMatchFoundInGraph = false;
+            for (var _c = 0, reversedModelGraph_1 = reversedModelGraph; _c < reversedModelGraph_1.length; _c++) {
+                var existingRelation = reversedModelGraph_1[_c];
+                if (existingRelation.sourceModel == model && existingRelation.relationType == relationType) {
+                    existingRelation.addDependentModel(relation.sourceModel);
+                    modelRelationMatchFoundInGraph = true;
+                    break;
+                }
+            }
+            if (!modelRelationMatchFoundInGraph)
+                reversedModelGraph.push(new Relation(model, relation.sourceModel, relationType));
+        }
+    }
+    return reversedModelGraph;
+};
 // @ts-ignore: Can't find Relation
 var resolveCircularReferences = function (modelGraph) {
     // First, we need to get an array of one to one correspondence between model and dependent
-    var flattenedGraph = [];
-    for (var _i = 0, modelGraph_1 = modelGraph; _i < modelGraph_1.length; _i++) {
-        var relation = modelGraph_1[_i];
-        for (var _a = 0, _b = relation.dependentModels; _a < _b.length; _a++) {
-            var model = _b[_a];
-            flattenedGraph.push({
-                source: relation.sourceModel,
-                type: relation.relationType.type,
-                target: model,
-                isCircularWith: null
-            });
-        }
-    }
+    var flattenedGraph = flattenGraph(modelGraph);
     // Crosscheck each element with every other element and check for circular dependencies
-    for (var _c = 0, flattenedGraph_1 = flattenedGraph; _c < flattenedGraph_1.length; _c++) {
-        var object1 = flattenedGraph_1[_c];
-        for (var _d = 0, flattenedGraph_2 = flattenedGraph; _d < flattenedGraph_2.length; _d++) {
-            var object2 = flattenedGraph_2[_d];
+    for (var _i = 0, flattenedGraph_1 = flattenedGraph; _i < flattenedGraph_1.length; _i++) {
+        var object1 = flattenedGraph_1[_i];
+        for (var _a = 0, flattenedGraph_2 = flattenedGraph; _a < flattenedGraph_2.length; _a++) {
+            var object2 = flattenedGraph_2[_a];
             if (object1 == object2)
                 continue;
             if (object1.source == object2.target && object1.target == object2.source) {
@@ -132,10 +149,10 @@ var resolveCircularReferences = function (modelGraph) {
     // Filter only the circularly referenced models
     flattenedGraph = flattenedGraph.filter(function (entry) { return entry.isCircularWith != null; });
     // Go through the original graph and remove relations having circular references
-    for (var _e = 0, flattenedGraph_3 = flattenedGraph; _e < flattenedGraph_3.length; _e++) {
-        var flatGraphRelation = flattenedGraph_3[_e];
-        for (var _f = 0, modelGraph_2 = modelGraph; _f < modelGraph_2.length; _f++) {
-            var modelGraphRelation = modelGraph_2[_f];
+    for (var _b = 0, flattenedGraph_3 = flattenedGraph; _b < flattenedGraph_3.length; _b++) {
+        var flatGraphRelation = flattenedGraph_3[_b];
+        for (var _c = 0, modelGraph_2 = modelGraph; _c < modelGraph_2.length; _c++) {
+            var modelGraphRelation = modelGraph_2[_c];
             if (flatGraphRelation.source == modelGraphRelation.sourceModel) {
                 var spliceIndex = modelGraphRelation.dependentModels.indexOf(flatGraphRelation.isCircularWith);
                 if (spliceIndex != -1)
@@ -154,11 +171,11 @@ var resolveCircularReferences = function (modelGraph) {
     var newModelRelations = [];
     var newModelNames = [];
     // Add new models to array while checking for duplicates
-    for (var _g = 0, flattenedGraph_4 = flattenedGraph; _g < flattenedGraph_4.length; _g++) {
-        var entry = flattenedGraph_4[_g];
+    for (var _d = 0, flattenedGraph_4 = flattenedGraph; _d < flattenedGraph_4.length; _d++) {
+        var entry = flattenedGraph_4[_d];
         var entryExistsInNewModels = false;
-        for (var _h = 0, newModelRelations_1 = newModelRelations; _h < newModelRelations_1.length; _h++) {
-            var relation = newModelRelations_1[_h];
+        for (var _e = 0, newModelRelations_1 = newModelRelations; _e < newModelRelations_1.length; _e++) {
+            var relation = newModelRelations_1[_e];
             if (entry.source == relation.target || entry.target == relation.source)
                 entryExistsInNewModels = true;
         }
@@ -171,12 +188,32 @@ var resolveCircularReferences = function (modelGraph) {
             newModelNames.push(entry.newModelName);
         }
     }
+    // Begin the relation string translation for source models
     var newRelationString = newModelRelations.reduce(function (acc, relation) { return acc + " " + relation.source.modelName + " HAS_MANY " + relation.newModelName + ","; }, "");
+    // Continue the relation string translation for dependent models
     newRelationString = newModelRelations.reduce(function (acc, relation) { return acc + " " + relation.target.modelName + " HAS_MANY " + relation.newModelName + ","; }, newRelationString);
+    // Trim and add beginning and ending brackets
     newRelationString = newRelationString.trim();
     newRelationString = "[" + newRelationString.substring(0, newRelationString.length - 1) + "]";
     var newModels = newModelNames.map(function (name) { return new Model(name); });
     return createModelGraph(newModels, newRelationString);
+};
+// @ts-ignore: Can't find Relation
+var flattenGraph = function (graph) {
+    var flattenedGraph = [];
+    for (var _i = 0, graph_2 = graph; _i < graph_2.length; _i++) {
+        var relation = graph_2[_i];
+        for (var _a = 0, _b = relation.dependentModels; _a < _b.length; _a++) {
+            var model = _b[_a];
+            flattenedGraph.push({
+                source: relation.sourceModel,
+                type: relation.relationType.type,
+                target: model,
+                isCircularWith: null
+            });
+        }
+    }
+    return flattenedGraph;
 };
 // @ts-ignore: Can't find Relation
 var mergeModelGraphs = function () {
@@ -188,8 +225,8 @@ var mergeModelGraphs = function () {
     var finalGraph = [];
     for (var _a = 0, graphs_1 = graphs; _a < graphs_1.length; _a++) {
         var graph = graphs_1[_a];
-        for (var _b = 0, graph_2 = graph; _b < graph_2.length; _b++) {
-            var relation = graph_2[_b];
+        for (var _b = 0, graph_3 = graph; _b < graph_3.length; _b++) {
+            var relation = graph_3[_b];
             var modelRelationMatchFoundInFinalGraph = false;
             for (var _c = 0, finalGraph_1 = finalGraph; _c < finalGraph_1.length; _c++) {
                 var finalRelation = finalGraph_1[_c];
@@ -215,8 +252,8 @@ var addMissingModels = function (graph, models) {
     for (var _i = 0, models_1 = models; _i < models_1.length; _i++) {
         var model = models_1[_i];
         var modelExistsInGraph = false;
-        for (var _a = 0, graph_3 = graph; _a < graph_3.length; _a++) {
-            var relation = graph_3[_a];
+        for (var _a = 0, graph_4 = graph; _a < graph_4.length; _a++) {
+            var relation = graph_4[_a];
             if (model.modelName == relation.sourceModel.modelName) {
                 modelExistsInGraph = true;
                 break;
