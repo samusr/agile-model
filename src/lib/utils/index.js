@@ -9,5 +9,19 @@ const renderEJS = require("./render-ejs");
 const spinner = require("./spinner");
 const writeToFile = require("./write-to-file");
 const generateNames = require("./generate-names");
+const arrayTostringShim = require("./array-tostring-shim");
 
-module.exports = { createFile, createFolder, deleteFile, log, pathExists, readFile, readFolder, renderEJS, spinner, writeToFile, generateNames };
+module.exports = {
+	createFile,
+	createFolder,
+	deleteFile,
+	log,
+	pathExists,
+	readFile,
+	readFolder,
+	renderEJS,
+	spinner,
+	writeToFile,
+	generateNames,
+	arrayTostringShim
+};

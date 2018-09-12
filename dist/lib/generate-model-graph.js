@@ -61,8 +61,8 @@ var createModelGraph = function (models, relationString) {
         if (!model)
             throw "Cannot find relation model \"" + modelName + "\" in models array";
         var _loop_2 = function (modelName_1) {
-            var dependentModel = models.filter(function (m) { return m.modelName == modelName_1; })[0];
-            if (!dependentModel)
+            var dependencyModel = models.filter(function (m) { return m.modelName == modelName_1; })[0];
+            if (!dependencyModel)
                 throw "Cannot find relation model \"" + modelName_1 + "\" in models array";
             // Determine the relation type
             var relationType = void 0;
@@ -84,13 +84,13 @@ var createModelGraph = function (models, relationString) {
             for (var _i = 0, graph_1 = graph; _i < graph_1.length; _i++) {
                 var existingRelation = graph_1[_i];
                 if (existingRelation.sourceModel == model && existingRelation.relationType == relationType) {
-                    existingRelation.addDependentModel(dependentModel);
+                    existingRelation.adddependencyModel(dependencyModel);
                     modelRelationMatchFoundInGraph = true;
                     break;
                 }
             }
             if (!modelRelationMatchFoundInGraph)
-                graph.push(new Relation(model, dependentModel, relationType));
+                graph.push(new Relation(model, dependencyModel, relationType));
         };
         // Create relations between the model and its dependents
         for (var _i = 0, dependentsModelNames_1 = dependentsModelNames; _i < dependentsModelNames_1.length; _i++) {
@@ -111,14 +111,14 @@ var createModelGraphWithReversedRelations = function (modelGraph) {
     for (var _i = 0, modelGraph_1 = modelGraph; _i < modelGraph_1.length; _i++) {
         var relation = modelGraph_1[_i];
         var relationType = relation.relationType.getReverse();
-        for (var _a = 0, _b = relation.dependentModels; _a < _b.length; _a++) {
+        for (var _a = 0, _b = relation.dependencyModels; _a < _b.length; _a++) {
             var model = _b[_a];
             // Create a new relation, if no existing relation a matching source model and relation type is found
             var modelRelationMatchFoundInGraph = false;
             for (var _c = 0, reversedModelGraph_1 = reversedModelGraph; _c < reversedModelGraph_1.length; _c++) {
                 var existingRelation = reversedModelGraph_1[_c];
                 if (existingRelation.sourceModel == model && existingRelation.relationType == relationType) {
-                    existingRelation.addDependentModel(relation.sourceModel);
+                    existingRelation.adddependencyModel(relation.sourceModel);
                     modelRelationMatchFoundInGraph = true;
                     break;
                 }
@@ -154,9 +154,9 @@ var resolveCircularReferences = function (modelGraph) {
         for (var _c = 0, modelGraph_2 = modelGraph; _c < modelGraph_2.length; _c++) {
             var modelGraphRelation = modelGraph_2[_c];
             if (flatGraphRelation.source == modelGraphRelation.sourceModel) {
-                var spliceIndex = modelGraphRelation.dependentModels.indexOf(flatGraphRelation.isCircularWith);
+                var spliceIndex = modelGraphRelation.dependencyModels.indexOf(flatGraphRelation.isCircularWith);
                 if (spliceIndex != -1)
-                    modelGraphRelation.dependentModels.splice(spliceIndex, 1);
+                    modelGraphRelation.dependencyModels.splice(spliceIndex, 1);
             }
         }
     }
@@ -203,7 +203,7 @@ var flattenGraph = function (graph) {
     var flattenedGraph = [];
     for (var _i = 0, graph_2 = graph; _i < graph_2.length; _i++) {
         var relation = graph_2[_i];
-        for (var _a = 0, _b = relation.dependentModels; _a < _b.length; _a++) {
+        for (var _a = 0, _b = relation.dependencyModels; _a < _b.length; _a++) {
             var model = _b[_a];
             flattenedGraph.push({
                 source: relation.sourceModel,
@@ -232,9 +232,9 @@ var mergeModelGraphs = function () {
                 var finalRelation = finalGraph_1[_c];
                 if (finalRelation.sourceModel.modelName == relation.sourceModel.modelName &&
                     finalRelation.relationType.type == relation.relationType.type) {
-                    for (var _d = 0, _e = relation.dependentModels; _d < _e.length; _d++) {
+                    for (var _d = 0, _e = relation.dependencyModels; _d < _e.length; _d++) {
                         var model = _e[_d];
-                        finalRelation.addDependentModel(model);
+                        finalRelation.adddependencyModel(model);
                     }
                     modelRelationMatchFoundInFinalGraph = true;
                     break;
@@ -267,4 +267,9 @@ var addMissingModels = function (graph, models) {
         graph.push(new Relation(model, null, HAS_ONE));
     }
     return graph;
+};
+// @ts-ignore: Can't find Relation
+var sortModelGraph = function (graph) {
+    // The sorting is necessary to prevent migration issues when using knex.
+    // Models with least dependencies
 };

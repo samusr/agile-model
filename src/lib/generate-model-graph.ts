@@ -79,8 +79,8 @@ const createModelGraph = (models: Array<Model>, relationString: string = ""): Ar
 
 		// Create relations between the model and its dependents
 		for (const modelName of dependentsModelNames) {
-			const dependentModel = models.filter(m => m.modelName == modelName)[0];
-			if (!dependentModel) throw `Cannot find relation model "${modelName}" in models array`;
+			const dependencyModel = models.filter(m => m.modelName == modelName)[0];
+			if (!dependencyModel) throw `Cannot find relation model "${modelName}" in models array`;
 
 			// Determine the relation type
 			let relationType;
@@ -103,13 +103,13 @@ const createModelGraph = (models: Array<Model>, relationString: string = ""): Ar
 
 			for (const existingRelation of graph) {
 				if (existingRelation.sourceModel == model && existingRelation.relationType == relationType) {
-					existingRelation.addDependentModel(dependentModel);
+					existingRelation.adddependencyModel(dependencyModel);
 					modelRelationMatchFoundInGraph = true;
 					break;
 				}
 			}
 
-			if (!modelRelationMatchFoundInGraph) graph.push(new Relation(model, dependentModel, relationType));
+			if (!modelRelationMatchFoundInGraph) graph.push(new Relation(model, dependencyModel, relationType));
 		}
 	}
 
@@ -124,13 +124,13 @@ const createModelGraphWithReversedRelations = (modelGraph: Array<Relation>): Arr
 	for (const relation of modelGraph) {
 		let relationType = relation.relationType.getReverse();
 
-		for (const model of relation.dependentModels) {
+		for (const model of relation.dependencyModels) {
 			// Create a new relation, if no existing relation a matching source model and relation type is found
 			let modelRelationMatchFoundInGraph = false;
 
 			for (const existingRelation of reversedModelGraph) {
 				if (existingRelation.sourceModel == model && existingRelation.relationType == relationType) {
-					existingRelation.addDependentModel(relation.sourceModel);
+					existingRelation.adddependencyModel(relation.sourceModel);
 					modelRelationMatchFoundInGraph = true;
 					break;
 				}
@@ -167,9 +167,9 @@ const resolveCircularReferences = (modelGraph: Array<Relation>): Array<Relation>
 	for (const flatGraphRelation of flattenedGraph) {
 		for (const modelGraphRelation of modelGraph) {
 			if (flatGraphRelation.source == modelGraphRelation.sourceModel) {
-				let spliceIndex = modelGraphRelation.dependentModels.indexOf(flatGraphRelation.isCircularWith);
+				let spliceIndex = modelGraphRelation.dependencyModels.indexOf(flatGraphRelation.isCircularWith);
 
-				if (spliceIndex != -1) modelGraphRelation.dependentModels.splice(spliceIndex, 1);
+				if (spliceIndex != -1) modelGraphRelation.dependencyModels.splice(spliceIndex, 1);
 			}
 		}
 	}
@@ -228,7 +228,7 @@ const flattenGraph = (graph: Array<Relation>): Array<Relation> => {
 	let flattenedGraph = [];
 
 	for (const relation of graph) {
-		for (const model of relation.dependentModels) {
+		for (const model of relation.dependencyModels) {
 			flattenedGraph.push({
 				source: relation.sourceModel,
 				type: relation.relationType.type,
@@ -255,8 +255,8 @@ const mergeModelGraphs = (...graphs: Array<Relation>): Array<Relation> => {
 					finalRelation.sourceModel.modelName == relation.sourceModel.modelName &&
 					finalRelation.relationType.type == relation.relationType.type
 				) {
-					for (let model of relation.dependentModels) {
-						finalRelation.addDependentModel(model);
+					for (let model of relation.dependencyModels) {
+						finalRelation.adddependencyModel(model);
 					}
 
 					modelRelationMatchFoundInFinalGraph = true;
@@ -293,4 +293,10 @@ const addMissingModels = (graph: Array<Relation>, models: Array<Models>): Array<
 	}
 
 	return graph;
+};
+
+// @ts-ignore: Can't find Relation
+const sortModelGraph = (graph: Array<Relation>): Array<Relation> => {
+	// The sorting is necessary to prevent migration issues when using knex.
+	// Models with least dependencies
 };

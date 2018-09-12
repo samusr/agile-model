@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+require("../dist/lib/utils/array-tostring-shim");
 const commander = require("commander");
 const generateModelGraph = require("../dist/lib/generate-model-graph");
 

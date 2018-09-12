@@ -23,30 +23,33 @@ module.exports = (() => {
 		// @ts-ignore: Cannot find Model
 		sourceModel: Model;
 		// @ts-ignore: Cannot find Model
-		dependentModels: Array<Model>;
+		dependencyModels: Array<Model>;
 		relationType: RelationType;
 
 		// @ts-ignore: Cannot find Model
-		constructor(sourceModel: Model, dependentModel: Model, relationType: RelationType) {
+		constructor(sourceModel: Model, dependencyModel: Model, relationType: RelationType) {
 			this.sourceModel = sourceModel;
 			this.relationType = relationType;
-			this.dependentModels = dependentModel ? [dependentModel] : [];
+			this.dependencyModels = dependencyModel ? [dependencyModel] : [];
 		}
 
 		// @ts-ignore: Cannot find Model
-		addDependentModel(dependentModel: Model): void {
-			for (let m of this.dependentModels) {
-				if (m == dependentModel) return;
+		adddependencyModel(dependencyModel: Model): void {
+			for (let m of this.dependencyModels) {
+				if (m == dependencyModel) return;
 			}
 
-			this.dependentModels.push(dependentModel);
+			this.dependencyModels.push(dependencyModel);
 		}
 
 		toString(): string {
-			return `Source: ${this.sourceModel.modelName}\nType: ${this.relationType.type}\nDependents: [${this.dependentModels.reduce(
-				(acc, model) => `${acc} ${model.modelName},`,
-				""
-			)}]\n`;
+			const sourceModelName = this.sourceModel.modelName;
+			const relationTypeName = this.relationType.type;
+			let dependencyModelNames = this.dependencyModels.reduce((acc, model) => `${acc} ${model.modelName},`, "");
+			dependencyModelNames = dependencyModelNames.trim();
+			dependencyModelNames = dependencyModelNames.substring(0, dependencyModelNames.length - 1);
+
+			return `Source: ${sourceModelName}\nType: ${relationTypeName}\nDependencies: [ ${dependencyModelNames} ]\n`;
 		}
 	}
 

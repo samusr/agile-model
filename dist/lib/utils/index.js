@@ -9,4 +9,18 @@ var renderEJS = require("./render-ejs");
 var spinner = require("./spinner");
 var writeToFile = require("./write-to-file");
 var generateNames = require("./generate-names");
-module.exports = { createFile: createFile, createFolder: createFolder, deleteFile: deleteFile, log: log, pathExists: pathExists, readFile: readFile, readFolder: readFolder, renderEJS: renderEJS, spinner: spinner, writeToFile: writeToFile, generateNames: generateNames };
+var arrayTostringShim = require("./array-tostring-shim");
+module.exports = {
+    createFile: createFile,
+    createFolder: createFolder,
+    deleteFile: deleteFile,
+    log: log,
+    pathExists: pathExists,
+    readFile: readFile,
+    readFolder: readFolder,
+    renderEJS: renderEJS,
+    spinner: spinner,
+    writeToFile: writeToFile,
+    generateNames: generateNames,
+    arrayTostringShim: arrayTostringShim
+};

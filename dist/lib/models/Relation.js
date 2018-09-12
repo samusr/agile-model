@@ -18,22 +18,27 @@ module.exports = (function () {
     }());
     var Relation = /** @class */ (function () {
         // @ts-ignore: Cannot find Model
-        function Relation(sourceModel, dependentModel, relationType) {
+        function Relation(sourceModel, dependencyModel, relationType) {
             this.sourceModel = sourceModel;
             this.relationType = relationType;
-            this.dependentModels = dependentModel ? [dependentModel] : [];
+            this.dependencyModels = dependencyModel ? [dependencyModel] : [];
         }
         // @ts-ignore: Cannot find Model
-        Relation.prototype.addDependentModel = function (dependentModel) {
-            for (var _i = 0, _a = this.dependentModels; _i < _a.length; _i++) {
+        Relation.prototype.adddependencyModel = function (dependencyModel) {
+            for (var _i = 0, _a = this.dependencyModels; _i < _a.length; _i++) {
                 var m = _a[_i];
-                if (m == dependentModel)
+                if (m == dependencyModel)
                     return;
             }
-            this.dependentModels.push(dependentModel);
+            this.dependencyModels.push(dependencyModel);
         };
         Relation.prototype.toString = function () {
-            return "Source: " + this.sourceModel.modelName + "\nType: " + this.relationType.type + "\nDependents: [" + this.dependentModels.reduce(function (acc, model) { return acc + " " + model.modelName + ","; }, "") + "]\n";
+            var sourceModelName = this.sourceModel.modelName;
+            var relationTypeName = this.relationType.type;
+            var dependencyModelNames = this.dependencyModels.reduce(function (acc, model) { return acc + " " + model.modelName + ","; }, "");
+            dependencyModelNames = dependencyModelNames.trim();
+            dependencyModelNames = dependencyModelNames.substring(0, dependencyModelNames.length - 1);
+            return "Source: " + sourceModelName + "\nType: " + relationTypeName + "\nDependencies: [ " + dependencyModelNames + " ]\n";
         };
         return Relation;
     }());
