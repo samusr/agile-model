@@ -14,14 +14,29 @@ describe("Unit tests for model graph generator", () => {
 		});
 	});
 
-	it("should find three (4) relations in graph built", () => {
-		assert.equal(graph.length, 4);
+	it("should find three (5) relations in graph built", () => {
+		assert.equal(graph.length, 5);
 	});
 
 	it("should find the source models of the relations as User, Post, Comment and Bird", () => {
-		assert.equal(graph[0].sourceModel.modelName, "User");
-		assert.equal(graph[1].sourceModel.modelName, "Post");
-		assert.equal(graph[2].sourceModel.modelName, "Comment");
-		assert.equal(graph[3].sourceModel.modelName, "Bird");
+		const checks = { user: false, post: false, comment: false, bird: false };
+
+		for (const relation of graph) {
+			switch (relation.sourceModel.modelName) {
+				case "User":
+					checks.user = true;
+					break;
+				case "Post":
+					checks.post = true;
+					break;
+				case "Comment":
+					checks.comment = true;
+					break;
+				case "Bird":
+					checks.bird = true;
+					break;
+			}
+		}
+		assert.equal(checks.user && checks.post && checks.comment && checks.bird, true);
 	});
 });
