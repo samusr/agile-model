@@ -1,5 +1,6 @@
 /**
  * This configures the objection config as well as services and migrations folders
+ * It assumes "npm init" has been run and a "package.json" file exists
  */
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -36,11 +37,11 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+process.env.NODE_ENV = "development";
 var path = require("path");
-var exec = require("child_process").exec;
-var generate = require("./generate");
-var generateModelGraph = require("./generate-model-graph");
-var _a = require("../utils"), read = _a.read, pathExists = _a.pathExists, write = _a.write, createFile = _a.createFile, createFolder = _a.createFolder, log = _a.log, spinner = _a.spinner, promisifyEjs = _a.promisifyEjs;
+// const generate = require("./generate");
+// const generateModelGraph = require("./generate-model-graph");
+var _a = require("./utils"), readFile = _a.readFile, writeToFile = _a.writeToFile;
 module.exports = function (args) {
     return __awaiter(this, void 0, void 0, function () {
         var databaseClient, err_1;
@@ -95,6 +96,14 @@ module.exports = function (args) {
         });
     });
 };
+var getRootDir = function () {
+    if (process.env.NODE_ENV == "development") {
+        return path.join(process.cwd(), "test/app/");
+    }
+    else {
+        return process.cwd();
+    }
+};
 function getPackageJSON() {
     return __awaiter(this, void 0, void 0, function () {
         var packageJsonPath, packageJsonString;
@@ -110,194 +119,116 @@ function getPackageJSON() {
         });
     });
 }
-function installPackage(packageName) {
-    return new Promise(function (resolve, reject) {
-        return __awaiter(this, void 0, void 0, function () {
-            var packageJson, installer, err_2;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, getPackageJSON()];
-                    case 1:
-                        packageJson = _a.sent();
-                        if (!packageJson.dependencies[packageName]) {
-                            log.warning(packageName + " not found");
-                            log.info("Installing " + packageName);
-                            log.info("Running 'npm install " + packageName + " --save'. Please wait for installation to complete...");
-                            installer = exec("npm install " + packageName + " --save");
-                            spinner.start();
-                            installer.on("exit", function () {
-                                spinner.stop();
-                                log.info(packageName + " has been installed");
-                                return resolve();
-                            });
-                            installer.on("error", function (err) {
-                                spinner.stop();
-                                console.error("An error occurred with the installation of " + packageName + ". Please try again");
-                                console.error("If this error persists, try running 'npm install " + packageName + "--save' manually");
-                                return reject(err);
-                            });
-                        }
-                        else {
-                            spinner.stop();
-                            log.info(packageName + " is already installed. Skipping installation");
-                            return [2 /*return*/, resolve()];
-                        }
-                        return [3 /*break*/, 3];
-                    case 2:
-                        err_2 = _a.sent();
-                        spinner.stop();
-                        return [2 /*return*/, reject(err_2)];
-                    case 3: return [2 /*return*/];
-                }
-            });
-        });
-    });
-}
-function configureKnex(databaseClient) {
-    return new Promise(function (resolve, reject) {
-        return __awaiter(this, void 0, void 0, function () {
-            var knexfilePath, knexfileTemplatePath, content, err_3;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        _a.trys.push([0, 4, , 5]);
-                        log.info("Configuring knex. Please wait...");
-                        knexfilePath = path.join(process.cwd(), "/knexfile.js");
-                        return [4 /*yield*/, createFile(knexfilePath)];
-                    case 1:
-                        _a.sent();
-                        knexfileTemplatePath = path.join(__dirname, "../template/knexfile.js.ejs");
-                        return [4 /*yield*/, promisifyEjs(knexfileTemplatePath, { client: databaseClient })];
-                    case 2:
-                        content = _a.sent();
-                        return [4 /*yield*/, write(knexfilePath, content)];
-                    case 3:
-                        _a.sent();
-                        log.info("Knex configuration complete.");
-                        return [2 /*return*/, resolve()];
-                    case 4:
-                        err_3 = _a.sent();
-                        return [2 /*return*/, reject(err_3)];
-                    case 5: return [2 /*return*/];
-                }
-            });
-        });
-    });
-}
-function configureObjection() {
-    return new Promise(function (resolve, reject) {
-        return __awaiter(this, void 0, void 0, function () {
-            var configFolderPath, objectionConfigFilePath, objectionTemplatePath, content, err_4;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        _a.trys.push([0, 5, , 6]);
-                        log.info("Configuring objection. Please wait...");
-                        configFolderPath = path.join(process.cwd(), "/config");
-                        objectionConfigFilePath = path.join(process.cwd(), "/config/objection.js");
-                        return [4 /*yield*/, createFolder(configFolderPath)];
-                    case 1:
-                        _a.sent();
-                        return [4 /*yield*/, createFile(objectionConfigFilePath)];
-                    case 2:
-                        _a.sent();
-                        objectionTemplatePath = path.join(__dirname, "../template/config/objection.js.ejs");
-                        return [4 /*yield*/, promisifyEjs(objectionTemplatePath, {})];
-                    case 3:
-                        content = _a.sent();
-                        return [4 /*yield*/, write(objectionConfigFilePath, content)];
-                    case 4:
-                        _a.sent();
-                        log.info("Objection configuration complete.");
-                        return [2 /*return*/, resolve()];
-                    case 5:
-                        err_4 = _a.sent();
-                        return [2 /*return*/, reject(err_4)];
-                    case 6: return [2 /*return*/];
-                }
-            });
-        });
-    });
-}
-function createAdditionalFilesAndFolders() {
-    return new Promise(function (resolve, reject) {
-        return __awaiter(this, void 0, void 0, function () {
-            var dbIndexFilePath, promises, dbIndexTemplateFilePath, content, err_5;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        _a.trys.push([0, 4, , 5]);
-                        log.info("Creating additional files and folders");
-                        dbIndexFilePath = path.join(process.cwd(), "/services/db/index.js");
-                        promises = [
-                            createFolder(path.join(process.cwd(), "/models")),
-                            createFolder(path.join(process.cwd(), "/migrations")),
-                            createFolder(path.join(process.cwd(), "/services")),
-                            createFolder(path.join(process.cwd(), "/services/db")),
-                            createFile(path.join(dbIndexFilePath))
-                        ];
-                        return [4 /*yield*/, Promise.all(promises)];
-                    case 1:
-                        _a.sent();
-                        dbIndexTemplateFilePath = path.join(__dirname, "../template/services/db/index.js.ejs");
-                        return [4 /*yield*/, promisifyEjs(dbIndexTemplateFilePath)];
-                    case 2:
-                        content = _a.sent();
-                        return [4 /*yield*/, write(dbIndexFilePath, content)];
-                    case 3:
-                        _a.sent();
-                        log.info("Finished creating additional files and folders");
-                        return [2 /*return*/, resolve()];
-                    case 4:
-                        err_5 = _a.sent();
-                        return [2 /*return*/, reject(err_5)];
-                    case 5: return [2 /*return*/];
-                }
-            });
-        });
-    });
-}
-function processAgilityConfig(args) {
-    return new Promise(function (resolve, reject) {
-        return __awaiter(this, void 0, void 0, function () {
-            var agilityConfigPath, agilityConfig, models, relationString, modelGraph, _i, modelGraph_1, model, err_6;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        _a.trys.push([0, 5, , 6]);
-                        log.info("Processing agility.config.js");
-                        agilityConfigPath = path.join(process.cwd(), "/agility.js");
-                        if (!pathExists(agilityConfigPath)) {
-                            log.info("No agility.js file found in root. If you want to use this file, please run \"agile-model init\"");
-                            return [2 /*return*/, resolve()];
-                        }
-                        agilityConfig = require(agilityConfigPath);
-                        models = agilityConfig.models;
-                        relationString = agilityConfig.relations;
-                        modelGraph = generateModelGraph(models, relationString);
-                        _i = 0, modelGraph_1 = modelGraph;
-                        _a.label = 1;
-                    case 1:
-                        if (!(_i < modelGraph_1.length)) return [3 /*break*/, 4];
-                        model = modelGraph_1[_i];
-                        return [4 /*yield*/, generate(model, args)];
-                    case 2:
-                        _a.sent();
-                        _a.label = 3;
-                    case 3:
-                        _i++;
-                        return [3 /*break*/, 1];
-                    case 4:
-                        log.info("Finished processing agility.js");
-                        return [2 /*return*/, resolve()];
-                    case 5:
-                        err_6 = _a.sent();
-                        return [2 /*return*/, reject(err_6)];
-                    case 6: return [2 /*return*/];
-                }
-            });
-        });
-    });
-}
+// function installPackage(packageName) {
+// 	return new Promise(async function(resolve, reject) {
+// 		try {
+// 			let packageJson = await getPackageJSON();
+// 			if (!packageJson.dependencies[packageName]) {
+// 				log.warning(`${packageName} not found`);
+// 				log.info(`Installing ${packageName}`);
+// 				log.info(`Running 'npm install ${packageName} --save'. Please wait for installation to complete...`);
+// 				let installer = exec(`npm install ${packageName} --save`);
+// 				spinner.start();
+// 				installer.on("exit", function() {
+// 					spinner.stop();
+// 					log.info(`${packageName} has been installed`);
+// 					return resolve();
+// 				});
+// 				installer.on("error", function(err) {
+// 					spinner.stop();
+// 					console.error(`An error occurred with the installation of ${packageName}. Please try again`);
+// 					console.error(`If this error persists, try running 'npm install ${packageName}--save' manually`);
+// 					return reject(err);
+// 				});
+// 			} else {
+// 				spinner.stop();
+// 				log.info(`${packageName} is already installed. Skipping installation`);
+// 				return resolve();
+// 			}
+// 		} catch (err) {
+// 			spinner.stop();
+// 			return reject(err);
+// 		}
+// 	});
+// }
+// function configureKnex(databaseClient) {
+// 	return new Promise(async function(resolve, reject) {
+// 		try {
+// 			log.info("Configuring knex. Please wait...");
+// 			const knexfilePath = path.join(process.cwd(), "/knexfile.js");
+// 			await createFile(knexfilePath);
+// 			const knexfileTemplatePath = path.join(__dirname, "../template/knexfile.js.ejs");
+// 			let content = await promisifyEjs(knexfileTemplatePath, { client: databaseClient });
+// 			await write(knexfilePath, content);
+// 			log.info("Knex configuration complete.");
+// 			return resolve();
+// 		} catch (err) {
+// 			return reject(err);
+// 		}
+// 	});
+// }
+// function configureObjection() {
+// 	return new Promise(async function(resolve, reject) {
+// 		try {
+// 			log.info("Configuring objection. Please wait...");
+// 			const configFolderPath = path.join(process.cwd(), "/config");
+// 			const objectionConfigFilePath = path.join(process.cwd(), "/config/objection.js");
+// 			await createFolder(configFolderPath);
+// 			await createFile(objectionConfigFilePath);
+// 			const objectionTemplatePath = path.join(__dirname, "../template/config/objection.js.ejs");
+// 			let content = await promisifyEjs(objectionTemplatePath, {});
+// 			await write(objectionConfigFilePath, content);
+// 			log.info("Objection configuration complete.");
+// 			return resolve();
+// 		} catch (err) {
+// 			return reject(err);
+// 		}
+// 	});
+// }
+// function createAdditionalFilesAndFolders() {
+// 	return new Promise(async function(resolve, reject) {
+// 		try {
+// 			log.info("Creating additional files and folders");
+// 			let dbIndexFilePath = path.join(process.cwd(), "/services/db/index.js");
+// 			let promises = [
+// 				createFolder(path.join(process.cwd(), "/models")),
+// 				createFolder(path.join(process.cwd(), "/migrations")),
+// 				createFolder(path.join(process.cwd(), "/services")),
+// 				createFolder(path.join(process.cwd(), "/services/db")),
+// 				createFile(path.join(dbIndexFilePath))
+// 			];
+// 			await Promise.all(promises);
+// 			let dbIndexTemplateFilePath = path.join(__dirname, "../template/services/db/index.js.ejs");
+// 			let content = await promisifyEjs(dbIndexTemplateFilePath);
+// 			await write(dbIndexFilePath, content);
+// 			log.info("Finished creating additional files and folders");
+// 			return resolve();
+// 		} catch (err) {
+// 			return reject(err);
+// 		}
+// 	});
+// }
+// function processAgilityConfig(args) {
+// 	return new Promise(async function(resolve, reject) {
+// 		try {
+// 			log.info("Processing agility.config.js");
+// 			let agilityConfigPath = path.join(process.cwd(), "/agility.js");
+// 			if (!pathExists(agilityConfigPath)) {
+// 				log.info(`No agility.js file found in root. If you want to use this file, please run "agile-model init"`);
+// 				return resolve();
+// 			}
+// 			let agilityConfig = require(agilityConfigPath);
+// 			let models = agilityConfig.models;
+// 			let relationString = agilityConfig.relations;
+// 			// Generate model graph
+// 			let modelGraph = generateModelGraph(models, relationString);
+// 			for (let model of modelGraph) {
+// 				await generate(model, args);
+// 			}
+// 			log.info("Finished processing agility.js");
+// 			return resolve();
+// 		} catch (err) {
+// 			return reject(err);
+// 		}
+// 	});
+// }

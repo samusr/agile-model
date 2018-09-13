@@ -1,5 +1,5 @@
 var Model = require("./models/Model");
-var _a = require("./models/Relation"), Relation = _a.Relation, HAS_ONE = _a.HAS_ONE, HAS_MANY = _a.HAS_MANY, BELONGS_TO_ONE = _a.BELONGS_TO_ONE;
+var _a = require("./models/graph-relation"), Relation = _a.Relation, HAS_ONE = _a.HAS_ONE, HAS_MANY = _a.HAS_MANY, BELONGS_TO_ONE = _a.BELONGS_TO_ONE;
 var _b = require("./utils").generateNames, generateModelName = _b.generateModelName, generateModelFilename = _b.generateModelFilename, generateTablename = _b.generateTablename, getInitialCamelCase = _b.getInitialCamelCase;
 /**
  * This takes the models array and relation string specified in an agility.js file
@@ -85,7 +85,7 @@ var createModelGraph = function (models, relationString) {
             for (var _i = 0, graph_1 = graph; _i < graph_1.length; _i++) {
                 var existingRelation = graph_1[_i];
                 if (existingRelation.sourceModel == model && existingRelation.relationType == relationType) {
-                    existingRelation.adddependencyModel(dependencyModel);
+                    existingRelation.addDependencyModel(dependencyModel);
                     modelRelationMatchFoundInGraph = true;
                     break;
                 }
@@ -119,7 +119,7 @@ var createModelGraphWithReversedRelations = function (modelGraph) {
             for (var _c = 0, reversedModelGraph_1 = reversedModelGraph; _c < reversedModelGraph_1.length; _c++) {
                 var existingRelation = reversedModelGraph_1[_c];
                 if (existingRelation.sourceModel == model && existingRelation.relationType == relationType) {
-                    existingRelation.adddependencyModel(relation.sourceModel);
+                    existingRelation.addDependencyModel(relation.sourceModel);
                     modelRelationMatchFoundInGraph = true;
                     break;
                 }
@@ -235,7 +235,7 @@ var mergeModelGraphs = function () {
                     finalRelation.relationType.type == relation.relationType.type) {
                     for (var _d = 0, _e = relation.dependencyModels; _d < _e.length; _d++) {
                         var model = _e[_d];
-                        finalRelation.adddependencyModel(model);
+                        finalRelation.addDependencyModel(model);
                     }
                     modelRelationMatchFoundInFinalGraph = true;
                     break;
@@ -320,6 +320,5 @@ var sortModelGraph = function (graph) {
         _loop_3();
     }
     sortedModelGraph = sortedModelGraph.concat(relationsWithDependencies);
-    console.log(sortedModelGraph.toString());
     return sortedModelGraph;
 };

@@ -34,7 +34,7 @@ module.exports = (() => {
 		}
 
 		// @ts-ignore: Cannot find Model
-		adddependencyModel(dependencyModel: Model): void {
+		addDependencyModel(dependencyModel: Model): void {
 			for (let m of this.dependencyModels) {
 				if (m == dependencyModel) return;
 			}

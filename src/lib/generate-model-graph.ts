@@ -1,5 +1,5 @@
 const Model = require("./models/Model");
-const { Relation, HAS_ONE, HAS_MANY, BELONGS_TO_ONE } = require("./models/Relation");
+const { Relation, HAS_ONE, HAS_MANY, BELONGS_TO_ONE } = require("./models/graph-relation");
 const {
 	generateNames: { generateModelName, generateModelFilename, generateTablename, getInitialCamelCase }
 } = require("./utils");
@@ -105,7 +105,7 @@ const createModelGraph = (models: Array<Model>, relationString: string = ""): Ar
 
 			for (const existingRelation of graph) {
 				if (existingRelation.sourceModel == model && existingRelation.relationType == relationType) {
-					existingRelation.adddependencyModel(dependencyModel);
+					existingRelation.addDependencyModel(dependencyModel);
 					modelRelationMatchFoundInGraph = true;
 					break;
 				}
@@ -132,7 +132,7 @@ const createModelGraphWithReversedRelations = (modelGraph: Array<Relation>): Arr
 
 			for (const existingRelation of reversedModelGraph) {
 				if (existingRelation.sourceModel == model && existingRelation.relationType == relationType) {
-					existingRelation.adddependencyModel(relation.sourceModel);
+					existingRelation.addDependencyModel(relation.sourceModel);
 					modelRelationMatchFoundInGraph = true;
 					break;
 				}
@@ -258,7 +258,7 @@ const mergeModelGraphs = (...graphs: Array<Relation>): Array<Relation> => {
 					finalRelation.relationType.type == relation.relationType.type
 				) {
 					for (let model of relation.dependencyModels) {
-						finalRelation.adddependencyModel(model);
+						finalRelation.addDependencyModel(model);
 					}
 
 					modelRelationMatchFoundInFinalGraph = true;
@@ -350,6 +350,5 @@ const sortModelGraph = (graph: Array<Relation>): Array<Relation> => {
 
 	sortedModelGraph = sortedModelGraph.concat(relationsWithDependencies);
 
-	console.log(sortedModelGraph.toString());
 	return sortedModelGraph;
 };

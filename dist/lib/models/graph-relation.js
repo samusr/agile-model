@@ -24,7 +24,7 @@ module.exports = (function () {
             this.dependencyModels = dependencyModel ? [dependencyModel] : [];
         }
         // @ts-ignore: Cannot find Model
-        Relation.prototype.adddependencyModel = function (dependencyModel) {
+        Relation.prototype.addDependencyModel = function (dependencyModel) {
             for (var _i = 0, _a = this.dependencyModels; _i < _a.length; _i++) {
                 var m = _a[_i];
                 if (m == dependencyModel)

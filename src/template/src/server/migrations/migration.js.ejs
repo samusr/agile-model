@@ -1,0 +1,13 @@
+//eslint-disable-next-line
+exports.up = function(knex, Promise) {
+    return knex.schema.createTable("<%= relation.sourceModel.tablename %>", function(table) {
+        table.increments();<% if(relation.relationType.type == "BELONGS_TO_ONE") { for(const depdendencyModel of relation.dependencyModels) {%>
+        table.integer("<%= depdendencyModel.tablename %>_id").references("<%= relation.sourceModel.tablename %>.id").unique().index();<% }} %>
+    	table.timestamps(true, true);
+    });
+};
+
+//eslint-disable-next-line
+exports.down = function(knex, Promise) {
+    return knex.schema.dropTable("<%= relation.sourceModel.tablename %>");
+};

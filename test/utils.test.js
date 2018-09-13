@@ -4,7 +4,7 @@ const { assert } = require("chai");
 const { pathExists, createFile, createFolder, writeToFile, readFile, readFolder, deleteFile } = require("../dist/lib/utils");
 
 describe("Unit tests for utilities", () => {
-	let testAppDirectory = path.join(__dirname, "./app/content/");
+	let testAppDirectory = path.join(__dirname, "./utils/");
 	let folderPaths = ["folder-1", "folder-2", "folder-3"];
 	let filePaths = ["file-1", "file-2", "file-3"];
 	let testString = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc luctus hendrerit nisl vel interdum.";

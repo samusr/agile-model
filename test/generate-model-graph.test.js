@@ -37,6 +37,7 @@ describe("Unit tests for model graph generator", () => {
 					break;
 			}
 		}
+
 		assert.equal(checks.user && checks.post && checks.comment && checks.bird, true);
 	});
 });
