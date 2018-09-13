@@ -5,7 +5,7 @@ require("../lib/utils/array-tostring-shim");
 const commander = require("commander");
 
 const init = require("../lib/init");
-// const setup = require("../lib/setup");
+const setup = require("../lib/setup");
 // const generate = require("../lib/generate");
 
 commander
@@ -13,13 +13,13 @@ commander
 	.description("Creates the agility.js file at the root of the project.")
 	.action(init);
 
-// commander
-// 	.command("setup")
-// 	.description(
-// 		"Sets the project up with an objection config file, services, models and migrations folders.\n\t\t\t\t    " +
-// 			"If there's an agility.js file in the root, it is used to setup the models and relations."
-// 	)
-// 	.action(setup);
+commander
+	.command("setup")
+	.description(
+		"Sets the project up with an objection config file, services, models and migrations folders.\n\t\t\t\t    " +
+			"If there's an agility.js file in the root, it is used to setup the models and relations."
+	)
+	.action(setup);
 
 // commander
 // 	.command("generate <entity>")
