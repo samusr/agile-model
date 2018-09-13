@@ -1,17 +1,7 @@
 const path = require("path");
 const fse = require("fs-extra");
 const { assert } = require("chai");
-const {
-	pathExists,
-	createFile,
-	createFolder,
-	writeToFile,
-	readFile,
-	readFolder,
-	deleteFile,
-	generateNames,
-	getRootDir
-} = require("../src/lib/utils");
+const { pathExists, createFile, createFolder, writeToFile, readFile, readFolder, deleteFile, generateNames, getRootDir } = require("../lib/utils");
 
 describe("Unit tests for utilities", () => {
 	let testAppDirectory = path.join(__dirname, "./utils/");

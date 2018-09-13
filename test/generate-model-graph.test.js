@@ -1,5 +1,5 @@
 const { assert } = require("chai");
-const modelGraphGenerator = require("../dist/lib/generate-model-graph");
+const modelGraphGenerator = require("../lib/generate-model-graph");
 
 describe("Unit tests for model graph generator", () => {
 	let graph;
