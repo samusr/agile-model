@@ -1,7 +1,17 @@
 const path = require("path");
 const fse = require("fs-extra");
 const { assert } = require("chai");
-const { pathExists, createFile, createFolder, writeToFile, readFile, readFolder, deleteFile } = require("../dist/lib/utils");
+const {
+	pathExists,
+	createFile,
+	createFolder,
+	writeToFile,
+	readFile,
+	readFolder,
+	deleteFile,
+	generateNames,
+	getRootDir
+} = require("../src/lib/utils");
 
 describe("Unit tests for utilities", () => {
 	let testAppDirectory = path.join(__dirname, "./utils/");
@@ -66,5 +76,21 @@ describe("Unit tests for utilities", () => {
 		for (let path of [].concat(filePaths, folderPaths)) {
 			assert.notEqual(pathExists(testAppDirectory + path), true);
 		}
+	});
+
+	it("should generate model, table and file names for a given name", () => {
+		const name = "user";
+
+		assert.equal(generateNames.generateModelName(name), "User");
+		assert.equal(generateNames.generateModelFilename(name), "user.js");
+		assert.equal(generateNames.generateTablename(name), "users");
+	});
+
+	it("should return the correct root folder", () => {
+		process.env.NODE_ENV = "development";
+		assert.equal(getRootDir(), path.join(process.cwd(), "test/app/"));
+
+		process.env.NODE_ENV = "production";
+		assert.equal(getRootDir(), process.cwd());
 	});
 });

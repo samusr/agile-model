@@ -1,5 +1,0 @@
-const <%= modelName %> = require("../../../models/<%= modelFileName %>");
-
-module.exports = function(relationString = "") {
-    return <%= modelName %>.query().eager(relationString);
-};
