@@ -1,13 +1,13 @@
-//eslint-disable-next-line
+//eslint-disable-next-line no-unused-vars
 exports.up = function(knex, Promise) {
-    return knex.schema.createTable("<%= relation.sourceModel.tablename %>", function(table) {
-        table.increments();<% if(relation.relationType.type == "BELONGS_TO_ONE") { for(const depdendencyModel of relation.dependencyModels) {%>
-        table.integer("<%= depdendencyModel.tablename %>_id").references("<%= relation.sourceModel.tablename %>.id").unique().index();<% }} %>
-    	table.timestamps(true, true);
-    });
+	return knex.schema.createTable("<%= relation.sourceModel.tablename %>", table => {
+		table.increments();<% for(const graph of relation.graphRelations) { for(const depdendencyModel of graph.dependencyModels) { if(graph.relationType.type == "BELONGS_TO_ONE") { %>
+		table.integer("<%= depdendencyModel.tablename %>_id").references("<%= depdendencyModel.tablename %>.id").unique().index();<% }}} %>
+		table.timestamps(true, true);
+	});
 };
 
-//eslint-disable-next-line
+//eslint-disable-next-line no-unused-vars
 exports.down = function(knex, Promise) {
-    return knex.schema.dropTable("<%= relation.sourceModel.tablename %>");
+	return knex.schema.dropTable("<%= relation.sourceModel.tablename %>");
 };

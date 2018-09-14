@@ -1,28 +1,37 @@
 const Model = require("../config/objection");
 
-module.exports = class <%= model.name %> extends Model {
+module.exports = class <%= relation.sourceModel.modelName %> extends Model {
     static get tableName() {
-        return "<%= model.table %>";
-    }<% if (model.relations && model.relations.length > 0) { %>
-
+        return "<%= relation.sourceModel.tablename %>";
+    }<% if (relation.graphRelations && relation.graphRelations.length > 0) { %>
+    
     static get relationMappings() {
-        return {<% for (let relation of model.relations) {  if (relation.relation == "HAS_MANY") { %>
-            <%= relation.name %>: {
+        return {<% for(let graph of relation.graphRelations) { for(let dependencyModel of graph.dependencyModels) { if (graph.relationType.type == "HAS_MANY") { %>
+            <%= dependencyModel.tablename %>: {
                 relation: Model.HasManyRelation,
-                modelClass: require("./<%= relation.file %>"),
+                modelClass: require("./<%= dependencyModel.modelFilename %>"),
                 join: {
-                    from: "<%= relation.join[0] %>",
-                    to: "<%= relation.join[1] %>"
+                    from: "<%= relation.sourceModel.tablename %>.id",
+                    to: "<%= dependencyModel.tablename %>.<%= relation.sourceModel.modelName.toLowerCase() %>_id"
                 }
-            },<% } else if (relation.relation == "BELONGS_TO_ONE") { %>
-            <%= relation.name %>: {
-                relation: Model.BelongsToOneRelation,
-                modelClass: require("./<%= relation.file %>"),
+            },<% } else if (graph.relationType.type == "HAS_ONE") { %>
+            <%= dependencyModel.tablename %>: {
+                relation: Model.HasOneRelation,
+                modelClass: require("./<%= dependencyModel.modelFilename %>"),
                 join: {
-                    from: "<%= relation.join[0] %>",
-                    to: "<%= relation.join[1] %>"
+                    from: "<%= relation.sourceModel.tablename %>.id",
+                    to: "<%= dependencyModel.tablename %>.<%= relation.sourceModel.modelName.toLowerCase() %>_id"
                 }
-            },<% }} %>
-        }
+            },<% } else if (graph.relationType.type == "BELONGS_TO_ONE") { %>
+            <%= dependencyModel.tablename %>: {
+                relation: Model.HasManyRelation,
+                modelClass: require("./<%= dependencyModel.modelFilename %>"),
+                join: {
+                    from: "<%= relation.sourceModel.tablename %>.<%= dependencyModel.modelName.toLowerCase() %>_id",
+                    to: "<%= dependencyModel.tablename %>.id"
+                }
+            },
+        <% }}} %>
+        };
     }<% } %>
 };

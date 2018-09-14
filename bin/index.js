@@ -6,7 +6,7 @@ const commander = require("commander");
 
 const init = require("../lib/init");
 const setup = require("../lib/setup");
-// const generate = require("../lib/generate");
+const generate = require("../lib/generate-model");
 
 commander
 	.command("init")
@@ -21,9 +21,9 @@ commander
 	)
 	.action(setup);
 
-// commander
-// 	.command("generate <entity>")
-// 	.description("Generates a model and associated database and migration files.")
-// 	.action(generate);
+commander
+	.command("generate <entity>")
+	.description("Generates a model and associated database and migration files.")
+	.action(generate);
 
 commander.parse(process.argv);
