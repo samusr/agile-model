@@ -15,7 +15,7 @@ module.exports = class <%= relation.sourceModel.modelName %> extends Model {
                     to: "<%= dependencyModel.tablename %>.<%= relation.sourceModel.modelName.toLowerCase() %>_id"
                 }
             },<% } else if (graph.relationType.type == "HAS_ONE") { %>
-            <%= dependencyModel.tablename %>: {
+            <%= dependencyModel.modelFilename.split(".")[0].replace(/-/g, "_") %>: {
                 relation: Model.HasOneRelation,
                 modelClass: require("./<%= dependencyModel.modelFilename %>"),
                 join: {
@@ -23,15 +23,14 @@ module.exports = class <%= relation.sourceModel.modelName %> extends Model {
                     to: "<%= dependencyModel.tablename %>.<%= relation.sourceModel.modelName.toLowerCase() %>_id"
                 }
             },<% } else if (graph.relationType.type == "BELONGS_TO_ONE") { %>
-            <%= dependencyModel.tablename %>: {
-                relation: Model.HasManyRelation,
+            <%= dependencyModel.modelFilename.split(".")[0].replace(/-/g, "_") %>: {
+                relation: Model.BelongsToOneRelation,
                 modelClass: require("./<%= dependencyModel.modelFilename %>"),
                 join: {
                     from: "<%= relation.sourceModel.tablename %>.<%= dependencyModel.modelName.toLowerCase() %>_id",
                     to: "<%= dependencyModel.tablename %>.id"
                 }
-            },
-        <% }}} %>
+            },<% }}} %>
         };
     }<% } %>
 };
