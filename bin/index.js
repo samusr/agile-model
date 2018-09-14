@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-process.env.NODE_ENV = "development";
+process.env.NODE_ENV = "production";
 
 require("../lib/utils/array-tostring-shim");
 const commander = require("commander");
 
 const init = require("../lib/init");
 const setup = require("../lib/setup");
-const generate = require("../lib/generate-model");
+const { fromModelName } = require("../lib/generate");
 
 commander
 	.command("init")
@@ -24,6 +24,6 @@ commander
 commander
 	.command("generate <entity>")
 	.description("Generates a model and associated database and migration files.")
-	.action(generate);
+	.action(fromModelName);
 
 commander.parse(process.argv);

@@ -2,7 +2,7 @@
 exports.up = function(knex, Promise) {
 	return knex.schema.createTable("<%= relation.sourceModel.tablename %>", table => {
 		table.increments();<% for(const graph of relation.graphRelations) { for(const depdendencyModel of graph.dependencyModels) { if(graph.relationType.type == "BELONGS_TO_ONE") { %>
-		table.integer("<%= depdendencyModel.tablename %>_id").references("<%= depdendencyModel.tablename %>.id").unique().index();<% }}} %>
+		table.integer("<%= depdendencyModel.modelName.toLowerCase() %>_id").references("<%= depdendencyModel.tablename %>.id").unique().index();<% }}} %>
 		table.timestamps(true, true);
 	});
 };
