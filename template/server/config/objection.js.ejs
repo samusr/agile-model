@@ -3,7 +3,7 @@
 const PG_DECIMAL_OID = 1700;
 require("pg").types.setTypeParser(PG_DECIMAL_OID, parseFloat);
 
-const knexfile = require("../knexfile.js");
+const knexfile = require("../../../knexfile.js");
 const knexConfig = knexfile["development"];
 
 const knex = require("knex")(knexConfig);

@@ -9,23 +9,28 @@ const MongoStore = require("connect-mongo")(session);
 const mongoose = require("mongoose");
 const csurf = require("csurf");
 
+const app = express();
+
 //=====================SETUP MONGO DB==============================
 mongoose.Promise = global.Promise;
 mongoose.connect(
 	process.env.MONGODB_URI,
-	{ useMongoClient: true }
-);
+	{ useNewUrlParser: true }
+);	
 
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error:"));
 db.once("open", function() {
 	console.log("connected to mongo!");
-});
+});	
+//=================================================================
+	
+//=====================VIEW ENGINE SETUP===========================
+app.set("views", path.join(__dirname, "../../dist"));
+app.set("view engine", "ejs");
 //=================================================================
 
 //=====================SETUP MIDDLEWARES===========================
-const app = express();
-
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -77,14 +82,6 @@ global._services = services;
 //=================================================================
 
 //=====================SETUP SERVER================================
-const port = normalizePort(process.env.PORT || "3000");
-app.set("port", port);
-
-const server = http.createServer(app);
-server.listen(port);
-server.on("error", onError);
-server.on("listening", onListening);
-
 const normalizePort = val => {
 	const port = parseInt(val, 10);
 
@@ -124,4 +121,12 @@ const onListening = () => {
 	const bind = typeof addr === "string" ? "pipe " + addr : "port " + addr.port;
 	debug("Listening on " + bind);
 };
+
+const port = normalizePort(process.env.PORT || "3000");
+app.set("port", port);
+
+const server = http.createServer(app);
+server.listen(port);
+server.on("error", onError);
+server.on("listening", onListening);
 //=================================================================
