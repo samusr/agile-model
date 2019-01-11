@@ -5,16 +5,13 @@ const ejs = require("ejs");
  * @param path Path to ejs file
  * @param params Parameters to be sent to the renderer
  */
-const renderEJS = async (path, params = {}) => {
-    const renderOutputPromise = new Promise((resolve, reject) => {
+const renderEJS = (path, params = {}) => {
+    return new Promise((resolve, reject) => {
         ejs.renderFile(path, params, (err, content) => {
             if (err) return reject(err);
-            resolve(content);
+            return resolve(content);
         });
     });
-
-    const renderOutput = await renderOutputPromise;
-    return renderOutput;
 };
 
 module.exports = renderEJS;
