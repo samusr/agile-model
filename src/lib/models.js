@@ -1,4 +1,4 @@
-const { namesGenerator } = require("./utils");
+const { namesGenerator } = require("../utils");
 
 /**
  * Represents a model that will help in

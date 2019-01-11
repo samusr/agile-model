@@ -1,9 +1,9 @@
-const <%= modelName %> = require("../../../models/<%= modelFileName %>");
+const <%= model.name %> = require("../../../models/<%= model.filename %>");
 
 module.exports = function(conditions = {}, relationString = "", page = 1, pageSize = 10) {
     page = Math.max(0, parseInt(page - 1));
-
-    return <%= modelName %>.query()
+    
+    return <%= model.name %>.query()
         .where(conditions)
         .page(parseInt(page), pageSize)
         .orderBy("created_at", "DESC")

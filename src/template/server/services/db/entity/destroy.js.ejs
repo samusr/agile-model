@@ -1,5 +1,5 @@
-const <%= modelName %> = require("../../../models/<%= modelFileName %>");
+const <%= model.name %> = require("../../../models/<%= model.filename %>");
 
 module.exports = function(id) {
-    return <%= modelName %>.query().deleteById(id);
+    return <%= model.name %>.query().deleteById(id);
 };

@@ -1,36 +1,36 @@
 const Model = require("../config/objection");
 
-module.exports = class <%= relation.sourceModel.modelName %> extends Model {
+module.exports = class <%= model.name %> extends Model {
     static get tableName() {
-        return "<%= relation.sourceModel.tablename %>";
-    }<% if (relation.graphRelations && relation.graphRelations.length > 0) { %>
+        return "<%= model.tablename %>";
+    }<% if (model.relations.length > 0) { %>
     
     static get relationMappings() {
-        return {<% for(let graph of relation.graphRelations) { for(let dependencyModel of graph.dependencyModels) { if (graph.relationType.type == "HAS_MANY") { %>
-            <%= dependencyModel.tablename %>: {
+        return {<% for(const relation of model.relations) { const relationIndex = model.relations.indexOf(relation); if (relation.type == "HAS_MANY") { %>
+            <%= relation.model.tablename %>: {
                 relation: Model.HasManyRelation,
-                modelClass: require("./<%= dependencyModel.modelFilename %>"),
+                modelClass: require("./<%= relation.model.filename %>"),
                 join: {
-                    from: "<%= relation.sourceModel.tablename %>.id",
-                    to: "<%= dependencyModel.tablename %>.<%= relation.sourceModel.modelName.toLowerCase() %>_id"
+                    from: "<%= model.tablename %>.id",
+                    to: "<%= relation.model.tablename %>.<%= model.name.toLowerCase() %>_id"
                 }
-            },<% } else if (graph.relationType.type == "HAS_ONE") { %>
-            <%= dependencyModel.modelFilename.split(".")[0].replace(/-/g, "_") %>: {
+            }<% } else if (relation.type == "HAS_ONE") { %>
+            <%= relation.model.filename.split(".")[0].replace(/-/g, "_") %>: {
                 relation: Model.HasOneRelation,
-                modelClass: require("./<%= dependencyModel.modelFilename %>"),
+                modelClass: require("./<%= relation.model.filename %>"),
                 join: {
-                    from: "<%= relation.sourceModel.tablename %>.id",
-                    to: "<%= dependencyModel.tablename %>.<%= relation.sourceModel.modelName.toLowerCase() %>_id"
+                    from: "<%= model.tablename %>.id",
+                    to: "<%= relation.model.tablename %>.<%= model.name.toLowerCase() %>_id"
                 }
-            },<% } else if (graph.relationType.type == "BELONGS_TO_ONE") { %>
-            <%= dependencyModel.modelFilename.split(".")[0].replace(/-/g, "_") %>: {
+            }<% } else if (relation.type == "BELONGS_TO_ONE") { %>
+            <%= relation.model.filename.split(".")[0].replace(/-/g, "_") %>: {
                 relation: Model.BelongsToOneRelation,
-                modelClass: require("./<%= dependencyModel.modelFilename %>"),
+                modelClass: require("./<%= relation.model.filename %>"),
                 join: {
-                    from: "<%= relation.sourceModel.tablename %>.<%= dependencyModel.modelName.toLowerCase() %>_id",
-                    to: "<%= dependencyModel.tablename %>.id"
+                    from: "<%= model.tablename %>.<%= relation.model.name.toLowerCase() %>_id",
+                    to: "<%= relation.model.tablename %>.id"
                 }
-            },<% }}} %>
+            }<% } if (relationIndex != model.relations.length - 1) { %>,<% } } %>
         };
     }<% } %>
 };

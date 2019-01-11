@@ -1,8 +1,8 @@
-const <%= modelName %> = require("../../../models/<%= modelFileName %>");
+const <%= model.name %> = require("../../../models/<%= model.filename %>");
 
 module.exports = function(id, args) {
-    return <%= modelName %>.query()
-        .where({ id: id })
+    return <%= model.name %>.query()
+        .where({ id })
         .patch(args)
         .returning("*")
         .first();

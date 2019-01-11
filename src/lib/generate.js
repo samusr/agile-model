@@ -1,157 +1,103 @@
 const _ = require("lodash");
 const path = require("path");
 const moment = require("moment");
-const generateModelGraph = require("./generate-model-graph");
-const GraphModel = require("./models/graph-model"); // eslint-disable-line no-unused-vars
-const { GraphRelation } = require("./models/graph-relation"); // eslint-disable-line no-unused-vars
-const ImplementationRelation = require("./models/implementation-relation");
-const { createFile, createFolder, readFolder, renderEJS, writeToFile, log, getRootDir } = require("./utils");
+const { Model } = require("./models"); // eslint-disable-line no-unused-vars
+const { createFile, createFolder, renderEJS, writeToFile, readFolder, getRootDir } = require("../utils");
 
 /**
- * Generates a single model from the given filename and its corresponding
- * files (i.e. databse, model and migration files)
+ * Generates the model, migration and db service files for a model object
+ * @param {Model} model The model object
  */
-module.exports.fromModelName = async function(/** @type {string} */ modelName) {
-	try {
-		const modelGraph = generateModelGraph([modelName], "");
-		await generate(modelGraph);
-	} catch (err) {
-		log(err, "error");
-	}
+module.exports = async model => {
+    await createModelFile(model);
+    await createMigrationFile(model);
+    await createDBServiceFiles(model);
 };
 
 /**
- * Generates models from a given model graph and their corresponding
- * files (i.e. databse, model and migration files)
+ * Creates the model file
+ * @param {Model} model The model object
  */
-module.exports.fromModelGraph = async function(/**@type {Array<GraphRelation>} */ modelGraph) {
-	try {
-		await generate(modelGraph);
-	} catch (err) {
-		log(err, "error");
-	}
+const createModelFile = async model => {
+    const templatePath = path.join(__dirname, "../template/server/models/model.js.ejs");
+    const content = await renderEJS(templatePath, { model });
+    const modelPath = path.resolve(getRootDir(), "src/server/models", model.filename);
+
+    createFile(modelPath);
+    writeToFile(modelPath, content);
 };
 
-const generate = async (/**@type {Array<GraphRelation>} */ modelGraph) => {
-	try {
-		const relation = new ImplementationRelation(modelGraph);
+/**
+ * Creates the migration file
+ * @param {Model} model The model object
+ */
+const createMigrationFile = async model => {
+    const templatePath = path.join(__dirname, "../template/server/migrations/migration.js.ejs");
+    const templateContent = await renderEJS(templatePath, { model });
+    const migrationName = `${moment().format("YYYYMMDDHHmmss_SSS")}_create_${model.tablename}.js`;
+    const migrationPath = path.resolve(getRootDir(), "src/server/migrations", migrationName);
 
-		await createModelFile(relation);
-		await createMigrationFiles(relation);
-		await createDBServiceFiles(relation);
-	} catch (err) {
-		log(err, "error");
-	}
+    createFile(migrationPath);
+    writeToFile(migrationPath, templateContent);
 };
 
-const createModelFile = (/**@type {ImplementationRelation} */ relation) => {
-	return new Promise(async function(resolve, reject) {
-		try {
-			const rootDir = path.join(getRootDir(), "src/server/models/");
-			const modelFilePath = rootDir + relation.sourceModel.modelFilename;
+/**
+ * Creates the db service file
+ * @param {Model} model The model object
+ */
+const createDBServiceFiles = async model => {
+    const renderArgs = { model };
+    const readPromises = [
+        renderEJS(path.join(__dirname, "../template/server/services/db/entity/index.js.ejs"), renderArgs),
+        renderEJS(path.join(__dirname, "../template/server/services/db/entity/create.js.ejs"), renderArgs),
+        renderEJS(path.join(__dirname, "../template/server/services/db/entity/edit.js.ejs"), renderArgs),
+        renderEJS(path.join(__dirname, "../template/server/services/db/entity/destroy.js.ejs"), renderArgs),
+        renderEJS(path.join(__dirname, "../template/server/services/db/entity/find-by-id.js.ejs"), renderArgs),
+        renderEJS(path.join(__dirname, "../template/server/services/db/entity/find-all.js.ejs"), renderArgs),
+        renderEJS(path.join(__dirname, "../template/server/services/db/entity/find-where-conditions.js.ejs"), renderArgs)
+    ];
+    const templateContent = await Promise.all(readPromises);
 
-			await createFile(modelFilePath);
+    const modelFileName = model.filename.split(".")[0];
+    const dbServicePath = path.resolve(getRootDir(), "src/server/services/db", modelFileName);
+    const createPromises = [
+        createFolder(path.join(dbServicePath)),
+        createFile(path.join(dbServicePath, "index.js")),
+        createFile(path.join(dbServicePath, "create.js")),
+        createFile(path.join(dbServicePath, "edit.js")),
+        createFile(path.join(dbServicePath, "destroy.js")),
+        createFile(path.join(dbServicePath, "find-by-id.js")),
+        createFile(path.join(dbServicePath, "find-all.js")),
+        createFile(path.join(dbServicePath, "find-where-conditions.js"))
+    ];
+    await Promise.all(createPromises);
 
-			const modelTemplatePath = path.join(__dirname, "../template/server/models/model.js.ejs");
-			const content = await renderEJS(modelTemplatePath, { relation });
+    const writePromises = [
+        writeToFile(path.join(dbServicePath, "index.js"), templateContent[0]),
+        writeToFile(path.join(dbServicePath, "create.js"), templateContent[1]),
+        writeToFile(path.join(dbServicePath, "edit.js"), templateContent[2]),
+        writeToFile(path.join(dbServicePath, "destroy.js"), templateContent[3]),
+        writeToFile(path.join(dbServicePath, "find-by-id.js"), templateContent[4]),
+        writeToFile(path.join(dbServicePath, "find-all.js"), templateContent[5]),
+        writeToFile(path.join(dbServicePath, "find-where-conditions.js"), templateContent[6])
+    ];
+    await Promise.all(writePromises);
 
-			await writeToFile(modelFilePath, content);
-			log("Model Created!", "success");
-			return resolve();
-		} catch (err) {
-			return reject(err);
-		}
-	});
-};
+    // Modify the database index file to reflect new model group
+    const dbFolderPath = path.resolve(getRootDir(), "src/server/services/db");
+    const modelFolderGroups = await readFolder(dbFolderPath);
 
-const createMigrationFiles = (/**@type {ImplementationRelation} */ relation) => {
-	return new Promise(async function(resolve, reject) {
-		try {
-			const rootDir = path.join(getRootDir(), "src/server/migrations/");
-			const migrationFilePath = `${rootDir}${moment().format("YYYYMMDDHHmmssSSS")}_create_${relation.sourceModel.tablename}_table.js`;
+    let dbIndexText = modelFolderGroups.reduce((acc, group) => {
+        return `${acc}const ${_.camelCase(group)} = require("./${group}");\n`;
+    }, "");
 
-			await createFile(migrationFilePath);
+    dbIndexText += "\nmodule.exports = {\n";
 
-			const migrationTemplatePath = path.join(__dirname, "../template/server/migrations/migration.js.ejs");
-			const content = await renderEJS(migrationTemplatePath, { relation });
+    dbIndexText += modelFolderGroups.reduce((acc, group) => {
+        return `${acc}	${_.camelCase(group)},\n`;
+    }, "");
 
-			await writeToFile(migrationFilePath, content);
-			log("Migration File Created!", "success");
-			return resolve();
-		} catch (err) {
-			return reject(err);
-		}
-	});
-};
+    dbIndexText += "};";
 
-const createDBServiceFiles = (/**@type {ImplementationRelation} */ relation) => {
-	return new Promise(async function(resolve, reject) {
-		try {
-			const rootDir = path.join(getRootDir(), "src/server/services/db/");
-			const modelFileName = relation.sourceModel.modelFilename.split(".")[0];
-
-			// Create the necessary folder and files
-			const createPromises = [
-				createFolder(path.join(rootDir, modelFileName)),
-				createFile(path.join(rootDir, modelFileName, "index.js")),
-				createFile(path.join(rootDir, modelFileName, "create.js")),
-				createFile(path.join(rootDir, modelFileName, "edit.js")),
-				createFile(path.join(rootDir, modelFileName, "destroy.js")),
-				createFile(path.join(rootDir, modelFileName, "find-by-id.js")),
-				createFile(path.join(rootDir, modelFileName, "find-all.js")),
-				createFile(path.join(rootDir, modelFileName, "find-where-conditions.js"))
-			];
-
-			await Promise.all(createPromises);
-
-			// Copy template to db files
-			const renderArgs = { modelName: relation.sourceModel.modelName, modelFileName: relation.sourceModel.modelFilename };
-
-			const readTemplatePromises = [
-				renderEJS(path.join(__dirname, "../template/server/services/db/entity/index.js.ejs"), renderArgs),
-				renderEJS(path.join(__dirname, "../template/server/services/db/entity/create.js.ejs"), renderArgs),
-				renderEJS(path.join(__dirname, "../template/server/services/db/entity/edit.js.ejs"), renderArgs),
-				renderEJS(path.join(__dirname, "../template/server/services/db/entity/destroy.js.ejs"), renderArgs),
-				renderEJS(path.join(__dirname, "../template/server/services/db/entity/find-by-id.js.ejs"), renderArgs),
-				renderEJS(path.join(__dirname, "../template/server/services/db/entity/find-all.js.ejs"), renderArgs),
-				renderEJS(path.join(__dirname, "../template/server/services/db/entity/find-where-conditions.js.ejs"), renderArgs)
-			];
-
-			const content = await Promise.all(readTemplatePromises);
-
-			const writePromises = [
-				writeToFile(path.join(rootDir, modelFileName, "index.js"), content[0]),
-				writeToFile(path.join(rootDir, modelFileName, "create.js"), content[1]),
-				writeToFile(path.join(rootDir, modelFileName, "edit.js"), content[2]),
-				writeToFile(path.join(rootDir, modelFileName, "destroy.js"), content[3]),
-				writeToFile(path.join(rootDir, modelFileName, "find-by-id.js"), content[4]),
-				writeToFile(path.join(rootDir, modelFileName, "find-all.js"), content[5]),
-				writeToFile(path.join(rootDir, modelFileName, "find-where-conditions.js"), content[6])
-			];
-
-			await Promise.all(writePromises);
-
-			// Modify the db index file
-			const modelFolderGroups = await readFolder(rootDir);
-
-			let dbIndexText = modelFolderGroups.reduce((acc, group) => {
-				return `${acc}const ${_.camelCase(group)} = require("./${group}");\n`;
-			}, "");
-
-			dbIndexText += "\nmodule.exports = {\n";
-
-			dbIndexText += modelFolderGroups.reduce((acc, group) => {
-				return `${acc}	${_.camelCase(group)},\n`;
-			}, "");
-
-			dbIndexText += "};";
-
-			await writeToFile(path.join(rootDir, "index.js"), dbIndexText);
-
-			log("DB files created successfully", "success");
-			return resolve();
-		} catch (err) {
-			return reject(err);
-		}
-	});
+    await writeToFile(path.join(dbFolderPath, "index.js"), dbIndexText);
 };
