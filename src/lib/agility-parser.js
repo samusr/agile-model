@@ -82,11 +82,11 @@ const processModelRelations = (models, relationString) => {
     // Match stage2Models data with corresponding model in models array
     for (const model of models) {
         for (const stage2Model of stage2Models) {
-            if (model.name.toLowerCase() == stage2Model.src) {
+            if (model.name.toLowerCase() == stage2Model.src.toLowerCase()) {
                 // Find matching related model in models array
                 for (const stage2ModelRelation of stage2Model.relations) {
                     for (const targetModel of models) {
-                        if (targetModel.name.toLowerCase() == stage2ModelRelation.target) {
+                        if (targetModel.name.toLowerCase() == stage2ModelRelation.target.toLowerCase()) {
                             model.addRelation(new Relation(stage2ModelRelation.type, targetModel));
                             break;
                         }

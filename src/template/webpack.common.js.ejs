@@ -1,10 +1,12 @@
 const path = require("path");
 
 module.exports = {
-    entry: "./src/client/app.js",
+    entry: {<% for(const portal of portals) { %>
+        "<%= portal %>": "<%= `./src/client/${portal}/index.js` %>",<% } %>
+    },
     output: {
         path: path.join(__dirname, "/dist"),
-        filename: "bundle.js"
+        filename: "[name]/bundle.js"
     },
     module: {
         rules: [

@@ -1,14 +1,13 @@
 {
     "name": "agile-model",
-    "version": "2.0.1",
-    "description": "agile-model is a model-controller framework designed to ease the process of setting up a PERN (PostgreSQL, Express, React, NodeJS) project",
+    "version": "3.0.0",
+    "description": "agile-model is an express project generator designed to ease the process of setting up a PERN (PostgreSQL, ExpressJS, React, NodeJS) project",
     "main": "./bin/index.js",
     "scripts": {
-        "test": "mocha --recursive --exit",
-        "watch": "tsc --watch"
+        "test": "mocha --recursive --exit"
     },
     "bin": {
-        "agile-model": "./bin/index.js"
+        "agile-model": "./dist/index.js"
     },
     "repository": {
         "type": "git",
@@ -18,11 +17,11 @@
         "agile",
         "generator",
         "express",
-        "model",
-        "controller",
-        "scaffold",
-        "agility",
-        "framework"
+        "postgresql",
+        "postgres",
+        "express",
+        "react",
+        "scaffold"
     ],
     "author": "Kwame Opare Asiedu",
     "license": "MIT",

@@ -1,5 +1,4 @@
 const path = require("path");
-const fse = require("fs-extra");
 const { assert } = require("chai");
 const {
     pathExists,
@@ -13,16 +12,28 @@ const {
     getRootDir
 } = require("../../src/utils");
 
+const cleanUpTestAppDir = () => {
+    // Delete all files and folders in the test utils directory
+    const allPaths = readFolder(path.join(getRootDir(), "../utils"), 2);
+    for (const _path of allPaths) deleteObject(path.join(getRootDir(), _path));
+    // Recreate the .gitignore file
+    createFile(path.join(getRootDir(), "../utils/.gitignore"));
+    writeToFile(path.join(getRootDir(), "../utils/.gitignore"), "*\n!.gitignore");
+};
+
 describe("Unit tests for utilities", () => {
-    const testAppDirectory = path.join(__dirname, "../utils/");
+    let testAppDirectory;
     const folderPaths = ["folder-1", "folder-2", "folder-3"];
     const filePaths = ["file-1", "file-2", "file-3"];
     const testString = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc luctus hendrerit nisl vel interdum.";
 
-    before(async () => {
-        // Delete everything in 'testAppDirectory'
-        fse.emptyDirSync(testAppDirectory);
+    before(() => {
+        process.env.NODE_ENV = "development";
+        testAppDirectory = path.join(getRootDir(), "../utils/");
+        cleanUpTestAppDir();
     });
+
+    after(cleanUpTestAppDir);
 
     it("should verify that test files and folders do not exist", () => {
         for (const path of [].concat(filePaths, folderPaths)) {
@@ -83,10 +94,12 @@ describe("Unit tests for utilities", () => {
     });
 
     it("should generate model, table and file names for a given name", () => {
-        const name = "user";
-        assert.equal(namesGenerator.generateModelName(name), "User");
-        assert.equal(namesGenerator.generateModelFilename(name), "user.js");
-        assert.equal(namesGenerator.generateTablename(name), "users");
+        assert.equal(namesGenerator.generateModelName("IndividualClient"), "IndividualClient");
+        assert.equal(namesGenerator.generateModelFilename("IndividualClient"), "individual-client.js");
+        assert.equal(namesGenerator.generateTablename("IndividualClient"), "individual_clients");
+        assert.equal(namesGenerator.generateModelName("User"), "User");
+        assert.equal(namesGenerator.generateModelFilename("User"), "user.js");
+        assert.equal(namesGenerator.generateTablename("User"), "users");
     });
 
     it("should return the correct root folder for development environment", () => {

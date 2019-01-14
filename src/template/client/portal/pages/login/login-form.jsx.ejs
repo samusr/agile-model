@@ -1,0 +1,69 @@
+import "./login-form.scss";
+import PropTypes from "prop-types";
+import { connect } from "react-redux";
+import React, { Component } from "react";
+import { reduxForm, Field } from "redux-form";
+import { inputField, LoaderButton } from "enscript-reusables";
+import { SENDING_LOGIN_LINK } from "../../config/loading-entries";
+import { sendLoginLink } from "../../actions/auth-actions";
+
+class LoginForm extends Component {
+    static get propTypes() {
+        return {
+            loading: PropTypes.array,
+            handleSubmit: PropTypes.func,
+            sendLoginLink: PropTypes.func
+        };
+    }
+
+    onSubmit(values) {
+        this.props.sendLoginLink(values.email);
+    }
+
+    render() {
+        const {
+            onSubmit,
+            props: { loading, handleSubmit }
+        } = this;
+
+        const isSubmiting = loading.includes(SENDING_LOGIN_LINK);
+
+        return (
+            <div className="col-md-4 offset-md-4">
+                <h1 className="text-center"><%= portal %> login</h1>
+
+                <form onSubmit={handleSubmit(onSubmit.bind(this))}>
+                    <Field component={inputField} type="email" name="email" label="Email" placeholder="Enter your email" />
+
+                    <LoaderButton className="btn btn-primary btn-lg btn-block" isLoading={isSubmiting}>
+                        {!isSubmiting && "Send Login Link"}
+                        {isSubmiting && "Sending Login Link..."}
+                    </LoaderButton>
+                </form>
+            </div>
+        );
+    }
+}
+
+const validate = values => {
+    const errors = {};
+    const fieldNames = ["name", "email"];
+
+    for (const field of fieldNames) {
+        if (!values[field] || values[field] == "") {
+            errors[field] = "This field is required";
+        }
+    }
+
+    return errors;
+};
+
+export default connect(
+    state => ({ loading: state.loading }),
+    { sendLoginLink }
+)(
+    reduxForm({
+        form: "<%= portal %>LoginForm",
+        validate
+    })(LoginForm)
+);

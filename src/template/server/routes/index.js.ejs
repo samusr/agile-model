@@ -1,5 +1,9 @@
 module.exports = app => {
     app.use("*", (req, res) => {
         res.render("index");
-    });
+    });<% for (const portal of portals) { %>
+    
+    app.use("/<%= portal %>/*", (req, res) => {
+        res.render("<%= portal %>/index");
+    });<% } %>
 };

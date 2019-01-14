@@ -15,13 +15,13 @@ const log = require("./log");
  */
 const readFolder = (folderPath, mode = 0) => {
     if (!pathExists(folderPath)) {
-        log("Search path does not exist", "error");
-        throw new Error("Search path does not exist");
+        log("Search path does not exist. Empty array returned", "warning");
+        return [];
     }
 
     if (!fse.lstatSync(folderPath).isDirectory()) {
-        log("Search path is not a directory", "error");
-        throw new Error("Search path is not a directory");
+        log("Search path is not a directory. Empty array returned", "warning");
+        return [];
     }
 
     const folderContents = fse.readdirSync(folderPath, { encoding: "utf-8" });

@@ -23,7 +23,7 @@ const getInitialCamelCase = str => {
  * @param {string} name The name from which to generate a model name
  */
 const generateModelName = name => {
-    const lowercasedModel = pluralize.singular(name).toLowerCase();
+    const lowercasedModel = pluralize.singular(getInitialCamelCase(name)).toLowerCase();
     return lowercasedModel[0].toUpperCase() + _.camelCase(lowercasedModel.replace("-", "_")).substring(1);
 };
 
@@ -32,7 +32,7 @@ const generateModelName = name => {
  * @param {string} name The name from which to generate a file name for a model
  */
 const generateModelFilename = name => {
-    const lowercasedModel = pluralize.singular(name).toLowerCase();
+    const lowercasedModel = pluralize.singular(getInitialCamelCase(name)).toLowerCase();
     return lowercasedModel + ".js";
 };
 
@@ -41,7 +41,7 @@ const generateModelFilename = name => {
  * @param {string} name The name from which to generate a database tablename for a model
  */
 const generateTablename = name => {
-    const lowercasedModel = pluralize.singular(name).toLowerCase();
+    const lowercasedModel = pluralize.singular(getInitialCamelCase(name)).toLowerCase();
     return pluralize(lowercasedModel)
         .replace(/-/g, "_")
         .toLowerCase();
