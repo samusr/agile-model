@@ -4,7 +4,7 @@ const { assert } = require("chai");
 const init = require("../../src/lib/init");
 const { pathExists, getRootDir, readFile, renderEJS } = require("../../src/utils");
 
-describe("Unit test for the init command", () => {
+describe("Feature test for the init command", () => {
     let agilityPath;
 
     before(() => {

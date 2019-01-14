@@ -5,7 +5,7 @@ const { Model } = require("../../src/lib/models");
 const generate = require("../../src/lib/generate");
 const { pathExists, getRootDir } = require("../../src/utils");
 
-describe("Unit test for the generate command", () => {
+describe("Feature test for the generate command", () => {
     let testSrcDir;
 
     before(() => {

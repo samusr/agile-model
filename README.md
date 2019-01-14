@@ -47,7 +47,12 @@ After, agile-model is done setting your project up, the structure will be as sho
     |   |   |   +-- db/
     |   |   |   |   +-- index.js
     +-- knexfile.js
+    +-- migrate.bat
     +-- package.json
+    +-- rollback.bat
+    +-- webpack.common.js
+    +-- webpack.dev.js
+    +-- webpack.prod.js
 
 ## Generating New Models
 
