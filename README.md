@@ -1,68 +1,71 @@
 # Agile Model
 
-**agile-model** painlessly sets up a PERN (PostgreSQL, Express, React Node) application.
+**agile-model** is a project generator framework that painlessly helps you set up an Express.js project with PostgreSQL and React running on the NodeJS runtime.
+
+This was created to eliminate all the hustle of setting up models, migrations and database files that are involved when starting a new application or adding more to an existing one. It also gives a nice, clean and very maintainable project structure that you'll just love.
+
+_​agile-model handles the boring repetitive stuff, so that you can handle the interesting creative stuff._
 
 # Installation
 
-npm install -g agile-model
+This should be installed as a global package. To do so, run the command below
 
-# Why
+​ `npm install -g agile-model`
 
-I created this to eliminate all the hustle of setting up models, migrations and database files for your application. It also gives a nice clean highly maintainable project structure that you'll just love.
-Also, the time I spend creating the same structure always in my projects, I could use in coming up with more awesome features :)
+# Getting started
 
-# Usage
+When you a new project, you might already have decided what your project models and relationships are. If so, you can load them into a special file called `agility.js` at the root of your project and agile-model will generate the necessary files for you. To create the this file, run the command:
 
-This is a global package and should be run at the root of your project.
+`agile-model init`
 
-## Initialization
+We'll talk about this in the section [Using the agility.js file for initial configuration](#using-the-agility.js-file-for-initial-configuration)
 
-To start with, run:
+## Setting up
 
-     agile-model init
+When you are ready to create your actual project directory content, run the command:
 
-This creates a file in your project root called **agility.js**. This is the configuration file agile-model will use to create the various entities in your app. We'll talk about this in the section [Using the **agility.js** file for initial configuration](#using-the-agility.js-file-for-initial-configuration)
+`agile-model setup`
 
-## Setting Up
-
-When you are ready to setup your project, you run:
-
-    agile-model setup
-
-This command sets up the base structure of your project and adds the **package.json** containing the **[Knex sql builder](https://knexjs.org/)** and **[Objection ORM](https://vincit.github.io/objection.js/)** as well as other useful dependencies.
+This command sets up the base structure of your project and adds the **package.json** containing the [Knex sql builder](https://knexjs.org/) and [Objection ORM](https://vincit.github.io/objection.js/) as well as other useful dependencies.
 
 After, agile-model is done setting your project up, the structure will be as shown below:
 
     my-app
     +-- dist
+        +-- ...
     +-- src
-    |   +-- client
-    |   |   +-- app.js
-    |   +-- server
-    |   |   +-- config/
-    |   |   +-- objection.js
-    |   |   +-- models/
-    |   |   +-- migrations/
-    |   |   +-- services/
-    |   |   |   +-- db/
-    |   |   |   |   +-- index.js
+        +-- client
+            +-- ...
+        +-- server
+            +-- config/
+            +-- objection.js
+            +-- models/
+            +-- migrations/
+            +-- services/
+                +-- db/
+                    +-- index.js
+    +-- .babelrc
+    +-- .eslintrc
+    +-- .gitignore
+    +-- agility.js
     +-- knexfile.js
     +-- migrate.bat
+    +-- nodemon.json
     +-- package.json
     +-- rollback.bat
     +-- webpack.common.js
     +-- webpack.dev.js
     +-- webpack.prod.js
 
-## Generating New Models
+## Generating new models
 
 After you have started working on your project, you may need more models you hadn't set up at the beginning. Don't worry, agile-model has got you covered. Inspired by [Active Record](http://guides.rubyonrails.org/active_record_basics.html) in Ruby on Rails, agile-model allows you to generate new models. (I.e. create the model with it's associated database and migration files).
 
-To generate a new model, run:
+To generate a new model, run the command:
 
-    agile-model generate [model-name]
+`agile-model generate <model name>`
 
-This will create the model file in `src/server/models/` folder and add the corresponding database files in the `src/server/services/db/` folder. By convention, **agile-model** will use a singular noun version of the name you used with the generate command and a plural form for the table name.
+This will create the model file in `src/server/models/` folder and add the corresponding database files group in the `src/server/services/db/` folder. agile-model will use a singular noun version of the name you specify with the generate command and a plural form for the table name.
 
 > As an example, running the command `agile-model generate user` will create a
 > model file called `user.js` containing a model class of `User`.
@@ -70,7 +73,7 @@ This will create the model file in `src/server/models/` folder and add the corre
 
 # Using the **agility.js** file for initial configuration
 
-When beginning a new app, you might already have the structure for the database. If you do, you can specify it withing the **agility.js** file which is created by running `agile-model init`. The file looks like this:
+The content of the agility.js file is shown below:
 
 ```
 /**
@@ -82,15 +85,20 @@ When beginning a new app, you might already have the structure for the database.
 
 module.exports = {
     models: [],
-    relations: ""
+    relations: "",
+    portals: []
 };
 ```
 
-In the **models** array is pretty straightforward. You put your model names within it.
+In the previous section, we saw how to create the agility.js file. Let's examine the content a bit more.
 
-The **relations** string is what brings out the power of agile-model. You specify the relations between your models and agile-model will use that to create a model-graph, from which it will construct the files and file relations.
+We mentioned that you can specify your models and model relationships in this file.
 
-To illustrate this, let's take a simple scenario. Let's say we want to build a todo-list app where **users** can create **posts** and can also **comment** on posts. We can identify the following relations:
+The purpose of the **models** array should be then pretty straightforward. You put your model names within it.
+
+The **relations** string is what brings out the power of agile-model. You specify the relationships between your models in here and agile-model will use that to create the files containing the models, their corresponding database file groups and syntactical relations to other models.
+
+To illustrate this, let's take a simple scenario. Let's say we want to build a very simepl blog where **users** can create **posts** and can also **comment** on posts. We can identify the following relations:
 
 1.  A user has one or many posts
 
@@ -98,32 +106,71 @@ To illustrate this, let's take a simple scenario. Let's say we want to build a t
 
 3.  A post has one or many comments
 
-From this, the **agility.js** configuration for this project will be...
+Looking at the relationship between these models, we can deduce that, in a relational database setting, every **post** object should have a foreign key linking it to its **user**. We would have a similar configuration for the **comment** object.
+
+From this simple scenario, our agility.js configuration for this project will be as show below:
 
 ```
 module.exports = {
-    models: ["user", "post", "comment"],
-    relations: "user HAS_MANY [post comment], post HAS_MANY comment"
+    models: ["User", "Post", "Comment"],
+    relations: "User HAS_MANY [Post Comment], Post HAS_MANY Comment"
+    // Let's ignore the portals array for now
 }
 ```
 
-...and that's it. Agile model will use this to build a dependency graph and create your entire database structure. Simple, don't you thing?
+...and that is literally all you have to do.
 
-You might be wondering, _"I only specified a relation from **user** to **post**, what about from **post** to **user**?_.
+agile-model will use this to build a model graph, determine which models are linked, determine the type of link (one-to-one, one-to-many, etc.), resolve the names of tables amongst other things and create your entire database structure. Simple, don't you think?
 
-No worries bruh. Agile model takes care of the reverse relations for you. From the model graph it can deduce that a post should belong to a user.
+You might be wondering, _"I only specified a relation from **User** to **Post**, what about from **Post** to **User**?_.
 
-As of **v2.0.0**, the supported relations are "HAS_ONE", "HAS_MANY", and "BELONGS_TO_ONE". In future releases, more relations will be supported.
+No worries there. **agile-model** has the added benefit of inferring the reverse relations of all relations you specified.
 
-## The MANY-TO-MANY Relationship
+What this means is that, for example, if you specify a relationship such as **user HAS_MANY post**, agile-model will add the relation **post BELONGS_TO_ONE user** for you.
 
-To implement a "many-to-many" relationship, the rules of database says to create a third entity to bridge the two entities. Thus if we have two entities: A and B, and their relationship is many-to-many, then we can break it down to A has-many C and B has-many C where C is our new bridge entity.
-In terms of the **agility.js** file, this would be:
+As of **v3.0.0**, the supported relations are "HAS_ONE", "HAS_MANY", and "BELONGS_TO_ONE". In future releases, more relations will be supported.
 
-    module.exports = {
-        model: ["A", "B", "C"],
-        relation: "A HAS_MANY C, B HAS_MANY C"
-    };
+## The illusive MANY-TO-MANY Relationship
+
+To implement a "many-to-many" relationship between two models, the rules of relational databases say to create a third model to bridge the two models. Thus if we have two models: **A** and **B**, and their relationship is many-to-many, then we can break it down to **A HAS_MANY C** and **B HAS_MANY C** where **C** is our new bridge model.
+
+If we had to specify this in the **agility.js** file, it would be:
+
+```
+module.exports = {
+    model: ["A", "B", "C"],
+    relation: "A HAS_MANY C, B HAS_MANY C"
+};
+```
+
+However, if you do not want to come up with a third model yourself, you can delegate the task to agile-model.
+
+In that case your **agility.js** would look like:
+
+```
+module.exports = {
+    model: ["A", "B"],
+    relation: "A HAS_MANY B, B HAS_MANY A"
+};
+```
+
+This creates what is known as a **circular dependency** between A and B. agile-model, in this case, will automatically create a new model by merging the names of the two models. In this case, you'd notice a new model **AB** being created as the bridge model
+
+## Portals
+
+A portal is essentially a modular part of the client-side of your application that work independently from each other.
+
+As as example, if you were building some sort of management application, you'd have one portal for users and another portal for administrators.
+
+Portals in agile-model are generated using [React](https://reactjs.org) and [Redux](https://redux.js.org). All the files of each portals are bundled into one by the configured [Webpack module bundler](https://webpack.js.org) and served in `/dist/[portal name]/bundle.js` within your project directory.
+
+While working on your application, if and when you need to create a new portal, run the command:
+
+`agile-model create-portal <portal name>`
+
+After generating a new portal, agile-model will rewrite your `/src/server/routes/index.js` to make sure it can be accessed by a url.
+
+It also reconfigures the `/webpack.common.js` to include your new portal in the build pipeline (This means it will compile the portals files so that it can be accessed from a url as an HTML page)
 
 # Testing
 
@@ -131,7 +178,9 @@ agile-model uses [mocha](https://mochajs.org/) and [chai](http://www.chaijs.com/
 
 To run the tests, simply run:
 
-    npm test
+`npm test`
+
+**_When adding new test, MAKE ABSOLUTELY SURE to set process.env.NODE_ENV="development", else running the tests will create files which will pollute the source code directories. When NODE_ENV is "development", the tests use a different folder as the root of the created files, not the agile-model root._**
 
 # Contribution
 
@@ -143,13 +192,21 @@ If you'd also like to support me with any donations (monetary or otherwise), ple
 
 If you discover any errors or malfunctions, please don't hesitate to open a issue on the repo and I'll look into it as soon as possible.
 
-When making changes remember to set the NODE_ENV to "development" in the `bin/index.js` file.
-
 # Contributors
 
 -   [Kwame Opare Asiedu](https://github.com/kwameopareasiedu/)
 
 # Changelog
+
+### v3.0.0
+
+-   Added new `create-portal` command
+-   Modified structure of `agility.js` to include portal creation
+-   Refactored model classes used in processing
+-   Replaced `generate-model-graph.js` with `agility-parser.js` which contains much less complicated, more understandable procedures
+-   Extended unit test suite to cover all utility files
+-   Replaced `DATABASE_URI` environment variable in `nodemon.json` templace with `DATABASE_URL`
+-   Updated ReadME
 
 ### v2.0.0
 
@@ -165,7 +222,7 @@ When making changes remember to set the NODE_ENV to "development" in the `bin/in
 -   Added **routes** and **views** folder structure generation to model scaffolding.
 -   Fixed foreign key name resolution in `/migrations` folder
 -   Added new `--no-routes` and `--no-views` switches to the `agile-model setup` and `agile-model generate` commands
--   Updated Readme
+-   Updated ReadME
 
 ### v1.1.0
 
@@ -173,11 +230,11 @@ When making changes remember to set the NODE_ENV to "development" in the `bin/in
 
 -   Fixed issue where database client is ignored from `agile-model setup --database=<database-client>`
 
--   Updated Readme
+-   Updated ReadME
 
 ### v1.0.1
 
--   Updated Readme
+-   Updated ReadME
 
 ### v1.0.0
 

@@ -3,6 +3,3 @@ node_modules
 package-lock.json
 
 *.bat
-
-src/check.js
-dist/check.js
