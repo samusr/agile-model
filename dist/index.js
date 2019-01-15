@@ -7,6 +7,7 @@ const commander = require("commander");
 const init = require("../src/lib/init");
 const setup = require("../src/lib/setup");
 const generate = require("../src/lib/generate");
+const createPortal = require("../src/lib/create-portal");
 const { Model } = require("../src/lib/models");
 
 commander
@@ -24,9 +25,14 @@ commander
 
 commander
     .command("generate <entity>")
-    .description("Generates a model and associated database and migration files.")
+    .description("Generates a new model and associated database and migration files.")
     .action(entityName => {
         generate(new Model(entityName));
     });
+
+commander
+    .command("create-portal <portalName>")
+    .description("Creates a new portal group in the client-side of your application.")
+    .action(createPortal);
 
 commander.parse(process.argv);

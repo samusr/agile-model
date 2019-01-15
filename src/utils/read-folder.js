@@ -8,12 +8,11 @@ const log = require("./log");
  * The search path must be a folder path.
  *
  * @param {string} path The path to search
- * @param {number} mode Indicates what type of search to perform in a folders. Values are 0 for folder listings,
- * 1 for file listings and 2 for all listings.
+ * @param {string} mode Indicates what type of content to look for in a folders. Values are "folder", "file" and "all"
  *
  * @returns {string[]} An array of filenames existing in the folder
  */
-const readFolder = (folderPath, mode = 0) => {
+const readFolder = (folderPath, mode = "all") => {
     if (!pathExists(folderPath)) {
         log("Search path does not exist. Empty array returned", "warning");
         return [];
@@ -28,10 +27,10 @@ const readFolder = (folderPath, mode = 0) => {
 
     return folderContents.filter(content => {
         const contentStats = fse.lstatSync(path.join(folderPath, content));
-        switch (mode) {
-            case 0:
+        switch (mode.toLowerCase()) {
+            case "folder":
                 return contentStats.isDirectory();
-            case 1:
+            case "file":
                 return contentStats.isFile();
             default:
                 return true;

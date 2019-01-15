@@ -6,8 +6,8 @@ const { pathExists, createFile, getRootDir, writeToFile, readFolder, deleteObjec
 
 const cleanUpTestAppDir = () => {
     // Delete all files and folders in the test app directory
-    const allPaths = readFolder(path.join(__dirname, "../app"), 2);
-    for (const _path of allPaths) deleteObject(path.join(getRootDir(), _path));
+    const allPaths = readFolder(path.join(__dirname, "../app"));
+    for (const _path of allPaths) deleteObject(path.join(__dirname, "../app/", _path));
     // Recreate the .gitignore file
     createFile(path.join(__dirname, "../app/.gitignore"));
     writeToFile(path.join(__dirname, "../app/.gitignore"), "*\n!.gitignore");
@@ -119,7 +119,7 @@ describe("Feature test for the setup command", () => {
             assert.equal(pathExists(path.join(getRootDir(), _path)), true);
         }
 
-        const migrationFiles = readFolder(path.join(getRootDir(), "src/server/migrations"), 1);
+        const migrationFiles = readFolder(path.join(getRootDir(), "src/server/migrations"), "file");
         assert.equal(migrationFiles.length, 3);
     });
 
@@ -130,8 +130,7 @@ describe("Feature test for the setup command", () => {
     });
 
     it("should verify that the verify that the dist folder was correctly built", () => {
-        const distFolders = readFolder(path.join(getRootDir(), "dist"), 0);
-        console.log(distFolders);
+        const distFolders = readFolder(path.join(getRootDir(), "dist"), "folder");
         assert.equal(distFolders.length, 2);
         assert.equal(distFolders[0], "admin");
         assert.equal(distFolders[1], "user");

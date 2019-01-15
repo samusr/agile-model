@@ -17,7 +17,9 @@ describe("Feature test for the init command", () => {
     });
 
     it("should create an agility at the test project root", () => {
-        assert.doesNotThrow(init);
+        assert.doesNotThrow(async () => {
+            await init();
+        });
     });
 
     it("should verify that agility.js was created at test project root", () => {

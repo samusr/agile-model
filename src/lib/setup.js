@@ -1,5 +1,6 @@
 const path = require("path");
 const generate = require("./generate");
+const createPortal = require("./create-portal");
 const agilityParser = require("./agility-parser");
 const { pathExists, renderEJS, getRootDir, log, createFile, createFolder, writeToFile } = require("../utils");
 
@@ -87,7 +88,7 @@ module.exports = async () => {
     for (const model of models) await generate(model);
 
     // Create portals specified in the agility.js file
-    await generatePortalFilesAndFolders(portals);
+    for (const portal of portals) await createPortal(portal);
 
     log(`\nTHINGS TO DO`, "info");
     log(`************\n`, "info");
@@ -99,110 +100,4 @@ module.exports = async () => {
     log(`6. Configure webpack if you'll be using a client interface`, "info");
     log(`7. Run "git init" if you want version management control`, "info");
     log(`8. Start the server with "npm start"`, "info");
-};
-
-/**
- * Creates the portals files and folders for each portal in the portal strings array
- *
- * @param {string[]} portals - Portals string array
- */
-const generatePortalFilesAndFolders = async portals => {
-    if (portals.length == 0) return;
-
-    for (const portal of portals) {
-        // Create /src/client files and folders
-
-        const srcRootDir = path.join(getRootDir(), `src/client/${portal}`);
-        createFolder(srcRootDir);
-        createFolder(path.join(srcRootDir, "/actions"));
-        createFolder(path.join(srcRootDir, "/assets"));
-        createFolder(path.join(srcRootDir, "/config"));
-        createFolder(path.join(srcRootDir, "/pages"));
-        createFolder(path.join(srcRootDir, "/pages/404"));
-        createFolder(path.join(srcRootDir, "/pages/base"));
-        createFolder(path.join(srcRootDir, "/pages/login"));
-        createFolder(path.join(srcRootDir, "/pages/components"));
-        createFolder(path.join(srcRootDir, "/pages/components/auth-container"));
-        createFolder(path.join(srcRootDir, "/pages/components/flash"));
-        createFolder(path.join(srcRootDir, "/pages/components/page-container"));
-        createFolder(path.join(srcRootDir, "/reducers"));
-
-        createFile(path.join(srcRootDir, "/actions/flash-actions.js"));
-        createFile(path.join(srcRootDir, "/actions/loading-actions.js"));
-        createFile(path.join(srcRootDir, "/config/action-types.js"));
-        createFile(path.join(srcRootDir, "/config/loading-entries.js"));
-        createFile(path.join(srcRootDir, "/config/url.js"));
-        createFile(path.join(srcRootDir, "/pages/404/index.jsx"));
-        createFile(path.join(srcRootDir, "/pages/base/index.jsx"));
-        createFile(path.join(srcRootDir, "/pages/components/auth-container/index.jsx"));
-        createFile(path.join(srcRootDir, "/pages/components/flash/index.jsx"));
-        createFile(path.join(srcRootDir, "/pages/components/flash/index.scss"));
-        createFile(path.join(srcRootDir, "/pages/components/page-container/index.jsx"));
-        createFile(path.join(srcRootDir, "/pages/components/index.js"));
-        createFile(path.join(srcRootDir, "/pages/login/index.jsx"));
-        createFile(path.join(srcRootDir, "/pages/login/index.scss"));
-        createFile(path.join(srcRootDir, "/pages/login/login-form.jsx"));
-        createFile(path.join(srcRootDir, "/pages/login/login-form.scss"));
-        createFile(path.join(srcRootDir, "/reducers/flash-reducer.js"));
-        createFile(path.join(srcRootDir, "/reducers/index.js"));
-        createFile(path.join(srcRootDir, "/reducers/loading-reducer.js"));
-        createFile(path.join(srcRootDir, "/index.js"));
-        createFile(path.join(srcRootDir, "/index.scss"));
-
-        const ejsParams = { portal };
-        const srcRenderEJSPromises = [
-            renderEJS(path.join(__dirname, "../template/client/portal/actions/flash-actions.js.ejs"), ejsParams),
-            renderEJS(path.join(__dirname, "../template/client/portal/actions/loading-actions.js.ejs"), ejsParams),
-            renderEJS(path.join(__dirname, "../template/client/portal/config/action-types.js.ejs"), ejsParams),
-            renderEJS(path.join(__dirname, "../template/client/portal/config/loading-entries.js.ejs"), ejsParams),
-            renderEJS(path.join(__dirname, "../template/client/portal/config/url.js.ejs"), ejsParams),
-            renderEJS(path.join(__dirname, "../template/client/portal/pages/404/index.jsx.ejs"), ejsParams),
-            renderEJS(path.join(__dirname, "../template/client/portal/pages/base/index.jsx.ejs"), ejsParams),
-            renderEJS(path.join(__dirname, "../template/client/portal/pages/components/auth-container/index.jsx.ejs"), ejsParams),
-            renderEJS(path.join(__dirname, "../template/client/portal/pages/components/flash/index.jsx.ejs"), ejsParams),
-            renderEJS(path.join(__dirname, "../template/client/portal/pages/components/flash/index.scss.ejs"), ejsParams),
-            renderEJS(path.join(__dirname, "../template/client/portal/pages/components/page-container/index.jsx.ejs"), ejsParams),
-            renderEJS(path.join(__dirname, "../template/client/portal/pages/components/index.js.ejs"), ejsParams),
-            renderEJS(path.join(__dirname, "../template/client/portal/pages/login/index.jsx.ejs"), ejsParams),
-            renderEJS(path.join(__dirname, "../template/client/portal/pages/login/index.scss.ejs"), ejsParams),
-            renderEJS(path.join(__dirname, "../template/client/portal/pages/login/login-form.jsx.ejs"), ejsParams),
-            renderEJS(path.join(__dirname, "../template/client/portal/pages/login/login-form.scss.ejs"), ejsParams),
-            renderEJS(path.join(__dirname, "../template/client/portal/reducers/flash-reducer.js.ejs"), ejsParams),
-            renderEJS(path.join(__dirname, "../template/client/portal/reducers/index.js.ejs"), ejsParams),
-            renderEJS(path.join(__dirname, "../template/client/portal/reducers/loading-reducer.js.ejs"), ejsParams),
-            renderEJS(path.join(__dirname, "../template/client/portal/index.js.ejs"), ejsParams),
-            renderEJS(path.join(__dirname, "../template/client/portal/index.scss.ejs"), ejsParams)
-        ];
-
-        const srcContent = await Promise.all(srcRenderEJSPromises);
-        writeToFile(path.join(srcRootDir, "/actions/flash-actions.js"), srcContent[0]);
-        writeToFile(path.join(srcRootDir, "/actions/loading-actions.js"), srcContent[1]);
-        writeToFile(path.join(srcRootDir, "/config/action-types.js"), srcContent[2]);
-        writeToFile(path.join(srcRootDir, "/config/loading-entries.js"), srcContent[3]);
-        writeToFile(path.join(srcRootDir, "/config/url.js"), srcContent[4]);
-        writeToFile(path.join(srcRootDir, "/pages/404/index.jsx"), srcContent[5]);
-        writeToFile(path.join(srcRootDir, "/pages/base/index.jsx"), srcContent[6]);
-        writeToFile(path.join(srcRootDir, "/pages/components/auth-container/index.jsx"), srcContent[7]);
-        writeToFile(path.join(srcRootDir, "/pages/components/flash/index.jsx"), srcContent[8]);
-        writeToFile(path.join(srcRootDir, "/pages/components/flash/index.scss"), srcContent[9]);
-        writeToFile(path.join(srcRootDir, "/pages/components/page-container/index.jsx"), srcContent[10]);
-        writeToFile(path.join(srcRootDir, "/pages/components/index.js"), srcContent[11]);
-        writeToFile(path.join(srcRootDir, "/pages/login/index.jsx"), srcContent[12]);
-        writeToFile(path.join(srcRootDir, "/pages/login/index.scss"), srcContent[13]);
-        writeToFile(path.join(srcRootDir, "/pages/login/login-form.jsx"), srcContent[14]);
-        writeToFile(path.join(srcRootDir, "/pages/login/login-form.scss"), srcContent[15]);
-        writeToFile(path.join(srcRootDir, "/reducers/flash-reducer.js"), srcContent[16]);
-        writeToFile(path.join(srcRootDir, "/reducers/index.js"), srcContent[17]);
-        writeToFile(path.join(srcRootDir, "/reducers/loading-reducer.js"), srcContent[18]);
-        writeToFile(path.join(srcRootDir, "/index.js"), srcContent[19]);
-        writeToFile(path.join(srcRootDir, "/index.scss"), srcContent[20]);
-
-        // Create /dist files and folders
-        const distRootDir = path.join(getRootDir(), `dist/${portal}`);
-
-        createFolder(distRootDir);
-        createFile(path.join(distRootDir, "index.ejs"));
-        const distContent = await renderEJS(path.join(__dirname, "../template/client/index.ejs"), ejsParams);
-        writeToFile(path.join(distRootDir, "index.ejs"), distContent);
-    }
 };

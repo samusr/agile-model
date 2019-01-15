@@ -14,11 +14,11 @@ const {
 
 const cleanUpTestAppDir = () => {
     // Delete all files and folders in the test utils directory
-    const allPaths = readFolder(path.join(getRootDir(), "../utils"), 2);
-    for (const _path of allPaths) deleteObject(path.join(getRootDir(), _path));
+    const allPaths = readFolder(path.join(__dirname, "../utils"));
+    for (const _path of allPaths) deleteObject(path.join(__dirname, "../utils/", _path));
     // Recreate the .gitignore file
-    createFile(path.join(getRootDir(), "../utils/.gitignore"));
-    writeToFile(path.join(getRootDir(), "../utils/.gitignore"), "*\n!.gitignore");
+    createFile(path.join(__dirname, "../utils/.gitignore"));
+    writeToFile(path.join(__dirname, "../utils/.gitignore"), "*\n!.gitignore");
 };
 
 describe("Unit tests for utilities", () => {
@@ -77,8 +77,8 @@ describe("Unit tests for utilities", () => {
     });
 
     it("should read folder contents", () => {
-        const files = readFolder(testAppDirectory);
-        assert.notEqual(files.length, 0);
+        const all = readFolder(testAppDirectory);
+        assert.notEqual(all.length, 0);
     });
 
     it("should delete files and folders", () => {
@@ -110,5 +110,6 @@ describe("Unit tests for utilities", () => {
     it("should return the correct root folder for production environment", () => {
         process.env.NODE_ENV = "production";
         assert.equal(getRootDir(), path.join(process.cwd(), "/"));
+        process.env.NODE_ENV = "development";
     });
 });

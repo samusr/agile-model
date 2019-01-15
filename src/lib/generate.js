@@ -79,7 +79,7 @@ const createDBServiceFiles = async model => {
 
     // Modify the database index file to reflect new model group
     const dbFolderPath = path.join(getRootDir(), "src/server/services/db");
-    const modelFolderGroups = await readFolder(dbFolderPath, 0);
+    const modelFolderGroups = await readFolder(dbFolderPath, "folder");
 
     let dbIndexText = modelFolderGroups.reduce((acc, group) => {
         return `${acc}const ${_.camelCase(group)} = require("./${group}");\n`;
