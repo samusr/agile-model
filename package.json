@@ -1,6 +1,6 @@
 {
     "name": "agile-model",
-    "version": "3.0.1",
+    "version": "3.1.0",
     "description": "agile-model is an express project generator designed to ease the process of setting up a PERN (PostgreSQL, ExpressJS, React, NodeJS) project",
     "main": "./bin/index.js",
     "scripts": {
