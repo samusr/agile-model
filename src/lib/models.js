@@ -1,3 +1,4 @@
+const { singular } = require("pluralize");
 const { namesGenerator } = require("../utils");
 
 /**
@@ -9,6 +10,7 @@ class Model {
         this.name = namesGenerator.generateModelName(name);
         this.filename = namesGenerator.generateModelFilename(name);
         this.tablename = namesGenerator.generateTablename(name);
+        this.singular_tablename = singular(this.tablename);
         this.relations = relations;
     }
 
