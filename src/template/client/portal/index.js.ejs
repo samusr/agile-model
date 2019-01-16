@@ -9,6 +9,7 @@ import reducers from "./reducers";
 
 import Base from "./pages/base";
 import Login from "./pages/login";
+import Auth from "./pages/auth";
 import Page404 from "./pages/404";
 
 const store = applyMiddleware(ReduxThunk)(createStore)(reducers);
@@ -20,6 +21,7 @@ ReactDOM.render(
                 <Route path="/<%= portal %>" exact component={Base} />
 
                 <Route path="/<%= portal %>/login" exact component={Login} />
+                <Route path="/<%= portal %>/authenticate" exact component={Auth} />
 
                 <Route component={Page404} />
             </Switch>

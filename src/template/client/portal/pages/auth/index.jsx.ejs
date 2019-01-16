@@ -1,0 +1,85 @@
+import PropTypes from "prop-types";
+import { connect } from "react-redux";
+import React, { Component } from "react";
+import { Loader } from "enscript-reusables";
+import { Redirect, Link } from "react-router-dom";
+import { authenticate } from "../../actions/auth-actions";
+import { AUTHENTICATING } from "../../config/loading-entries";
+import { PageContainer } from "../components";
+
+class Authenticate extends Component {
+    static get propTypes() {
+        return {
+            match: PropTypes.object,
+            history: PropTypes.object,
+            loading: PropTypes.array,
+            isAuthenticated: PropTypes.bool,
+            authenticate: PropTypes.func
+        };
+    }
+
+    componentDidMount() {
+        const {
+            onAuthenticated,
+            props: { match, authenticate }
+        } = this;
+        authenticate(match.params.token, onAuthenticated.bind(this));
+    }
+
+    onAuthenticated(nextUrl = "/<%= portal %>/dashboard") {
+        this.props.history.push(nextUrl);
+    }
+
+    render() {
+        const { loading, isAuthenticated } = this.props;
+        const isAuthenticating = loading.includes(AUTHENTICATING);
+
+        if (isAuthenticated) {
+            return <Redirect to="/<%= portal %>/dashboard" />;
+        }
+
+        return (
+            <div id="authenticate" className="<%= portal %>-page" style={{ height: "100vh", backgroundColor: "#d3d3d3" }}>
+                <PageContainer>
+                    <div className="text-center">
+                        <h1 className="text-center"><%= portal %> login</h1>
+
+                        {isAuthenticating && (
+                            <Loader>
+                                <p className="text-center">
+                                    <br />
+                                    Authenticating. Please wait...
+                                </p>
+                            </Loader>
+                        )}
+
+                        {!isAuthenticating && !isAuthenticated && (
+                            <div className="col-4 offset-4">
+                                <h4>
+                                    <i className="fa fa-exclamation-triangle fa-2x" />
+                                    &nbsp;&nbsp; AUTHENTICATION FAILED.
+                                </h4>
+
+                                <p style={{ marginTop: "15px" }}>Sorry, it seems this link has expired</p>
+
+                                <br />
+
+                                <Link to="/<%= portal %>/login" className="btn btn-blue btn-heavy btn-block">
+                                    LOGIN AGAIN
+                                </Link>
+                            </div>
+                        )}
+                    </div>
+                </PageContainer>
+            </div>
+        );
+    }
+}
+
+export default connect(
+    state => ({
+        isAuthenticated: state.auth.isAuthenticated,
+        loading: state.loading
+    }),
+    { authenticate }
+)(Authenticate);
