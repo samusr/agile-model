@@ -104,6 +104,7 @@ describe("Feature test for the setup command", () => {
             "src/server/services/db/post/edit.js",
             "src/server/services/db/post/find-all.js",
             "src/server/services/db/post/find-by-id.js",
+            "src/server/services/db/post/find-by-user-id.js",
             "src/server/services/db/post/find-where-conditions.js",
             "src/server/services/db/post/index.js",
             "src/server/services/db/comment/create.js",
@@ -111,6 +112,8 @@ describe("Feature test for the setup command", () => {
             "src/server/services/db/comment/edit.js",
             "src/server/services/db/comment/find-all.js",
             "src/server/services/db/comment/find-by-id.js",
+            "src/server/services/db/comment/find-by-user-id.js",
+            "src/server/services/db/comment/find-by-post-id.js",
             "src/server/services/db/comment/find-where-conditions.js",
             "src/server/services/db/comment/index.js"
         ];

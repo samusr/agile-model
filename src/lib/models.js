@@ -1,3 +1,4 @@
+const _ = require("lodash");
 const { singular } = require("pluralize");
 const { namesGenerator } = require("../utils");
 
@@ -50,4 +51,18 @@ class Relation {
     }
 }
 
-module.exports = { Model, Relation };
+/**
+ * Contains all parameters required to create the
+ * find-by-relation-id.js database service file
+ */
+class BelongsToOnePair {
+    constructor(hasManyModel, belongsToOneModel) {
+        // If User HAS_MANY Post...
+        this.hasManyModel = hasManyModel; // 'User' is the hasManyModel
+        this.belongsToOneModel = belongsToOneModel; // 'Post' is the belongsToOneModel
+        this.hasManyModelVarName = `${_.camelCase(hasManyModel.singular_tablename)}Id`; // This would be 'userId'
+        this.dbRelationFileName = `find-by-${hasManyModel.singular_tablename.replace(/_/g, "-")}-id.js`; // This would be 'find-by-user-id.js'
+    }
+}
+
+module.exports = { Model, Relation, BelongsToOnePair };

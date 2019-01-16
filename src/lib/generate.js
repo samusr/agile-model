@@ -1,7 +1,7 @@
 const _ = require("lodash");
 const path = require("path");
 const moment = require("moment");
-const { Model } = require("./models"); // eslint-disable-line no-unused-vars
+const { Model, BelongsToOnePair } = require("./models"); // eslint-disable-line no-unused-vars
 const { createFile, createFolder, renderEJS, writeToFile, readFolder, getRootDir } = require("../utils");
 
 /**
@@ -76,6 +76,18 @@ const createDBServiceFiles = async model => {
     writeToFile(path.join(dbServicePath, "find-by-id.js"), templateContent[4]);
     writeToFile(path.join(dbServicePath, "find-all.js"), templateContent[5]);
     writeToFile(path.join(dbServicePath, "find-where-conditions.js"), templateContent[6]);
+
+    // Before we modify the index file, we need to create the 'find-by-relation.js' files
+    for (const relation of model.relations) {
+        if (relation.type == "BELONGS_TO_ONE") {
+            const modelPair = new BelongsToOnePair(relation.model, model);
+            createFile(path.join(dbServicePath, modelPair.dbRelationFileName));
+            const content = await renderEJS(path.join(__dirname, "../template/server/services/db/entity/find-by-relation-id.js.ejs"), {
+                pair: modelPair
+            });
+            writeToFile(path.join(dbServicePath, modelPair.dbRelationFileName), content);
+        }
+    }
 
     // Modify the database index file to reflect new model group
     const dbFolderPath = path.join(getRootDir(), "src/server/services/db");
