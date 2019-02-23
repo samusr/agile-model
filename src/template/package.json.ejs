@@ -3,11 +3,12 @@
 	"version": "1.0.0",
 	"private": true,
 	"scripts": {
-        "dev": "concurrently \"nodemon ./src/server/app.js\" \"webpack --watch --config webpack.js\"",
+        "dev": "concurrently \"nodemon ./src/server/app.js\" \"webpack --watch --config webpack.dev.js\"",
         "build": "webpack --watch --config webpack.prod.js",
         "server": "nodemon ./src/server/app.js"
 	},
 	"dependencies": {
+        "axios": "^0.18.0",
 		"cookie-parser": "^1.4.3",
 		"connect-mongo": "^2.0.3",
 		"csurf": "^1.9.0",
