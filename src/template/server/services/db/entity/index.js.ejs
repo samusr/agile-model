@@ -2,7 +2,8 @@ const create = require("./create");
 const destroy = require("./destroy");
 const edit = require("./edit");
 const findAll = require("./find-all");
-const findById = require("./find-by-id");
+const findById = require("./find-by-id");<% for (const relation of model.relations) { if (relation.type == "BELONGS_TO_ONE") {%>
+const findBy<%= relation.model.name %>Id = require("./find-by-<%= relation.model.singular_tablename.replace(/_/g, "-") %>-id");<% }} %>
 const findWhereConditions = require("./find-where-conditions");
 
-module.exports = { create, destroy, edit, findAll, findById, findWhereConditions };
+module.exports = { create, destroy, edit, findAll, findById,<% for (const relation of model.relations) { if (relation.type == "BELONGS_TO_ONE") {%> findBy<%= relation.model.name %>Id%>,<% }} %> findWhereConditions };

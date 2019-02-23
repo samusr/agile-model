@@ -1,4 +1,6 @@
-module.exports = app => {<% for (const portal of portals) { %>
+module.exports = app => {
+    app.use("/api", require("./api"));
+    <% for (const portal of portals) { %>
     app.use("/<%= portal %>/*", (req, res) => {
         res.render("<%= portal %>/index");
     });

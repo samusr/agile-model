@@ -1,6 +1,6 @@
 const <%= model.name %> = require("../../../models/<%= model.filename %>");
 
-module.exports = function(conditions = {}, relationString = "", page = 1, pageSize = 10) {
+module.exports = function(page = 1, conditions = {}, relationString = "", pageSize = 10) {
     page = Math.max(0, parseInt(page - 1));
     
     return <%= model.name %>.query()
