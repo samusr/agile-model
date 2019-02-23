@@ -1,17 +1,11 @@
+const fs = require("fs");
 const ejs = require("ejs");
 
 /**
- * This module returns the render of an ejs file
+ * Renders an ejs file with given params and returns the rendered string
  * @param path Path to ejs file
  * @param params Parameters to be sent to the renderer
  */
-const renderEJS = (path, params = {}) => {
-    return new Promise((resolve, reject) => {
-        ejs.renderFile(path, params, (err, content) => {
-            if (err) return reject(err);
-            return resolve(content);
-        });
-    });
-};
+const renderEJS = (path, params = {}) => ejs.render(fs.readFileSync(path, "utf-8"), params);
 
 module.exports = renderEJS;

@@ -7,10 +7,10 @@ const log = require("./log");
  * @param path path of target file or folder
  */
 const deleteObject = path => {
-    if (pathExists(path)) {
-        fse.removeSync(path);
-        log(`Object removed @ ${path}`, "info");
-    } else log("Path does not exist", "info");
+	if (pathExists(path)) {
+		fse.removeSync(path);
+		log(`Object removed @ ${path}`, "info");
+	} else log("Path does not exist", "info");
 };
 
 module.exports = deleteObject;

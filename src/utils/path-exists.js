@@ -1,8 +1,6 @@
 const fse = require("fs-extra");
 
 /**
- * This utility checks if a file exists
+ * Checks if a file exists at the given path
  */
-module.exports = path => {
-    return fse.pathExistsSync(path);
-};
+module.exports = path => fse.pathExistsSync(path);

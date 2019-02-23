@@ -13,29 +13,29 @@ const log = require("./log");
  * @returns {string[]} An array of filenames existing in the folder
  */
 const readFolder = (folderPath, mode = "all") => {
-    if (!pathExists(folderPath)) {
-        log("Search path does not exist. Empty array returned", "warning");
-        return [];
-    }
+	if (!pathExists(folderPath)) {
+		log("Search path does not exist. Empty array returned", "warning");
+		return [];
+	}
 
-    if (!fse.lstatSync(folderPath).isDirectory()) {
-        log("Search path is not a directory. Empty array returned", "warning");
-        return [];
-    }
+	if (!fse.lstatSync(folderPath).isDirectory()) {
+		log("Search path is not a directory. Empty array returned", "warning");
+		return [];
+	}
 
-    const folderContents = fse.readdirSync(folderPath, { encoding: "utf-8" });
+	const folderContents = fse.readdirSync(folderPath, { encoding: "utf-8" });
 
-    return folderContents.filter(content => {
-        const contentStats = fse.lstatSync(path.join(folderPath, content));
-        switch (mode.toLowerCase()) {
-            case "folder":
-                return contentStats.isDirectory();
-            case "file":
-                return contentStats.isFile();
-            default:
-                return true;
-        }
-    });
+	return folderContents.filter(content => {
+		const contentStats = fse.lstatSync(path.join(folderPath, content));
+		switch (mode.toLowerCase()) {
+			case "folder":
+				return contentStats.isDirectory();
+			case "file":
+				return contentStats.isFile();
+			default:
+				return true;
+		}
+	});
 };
 
 module.exports = readFolder;

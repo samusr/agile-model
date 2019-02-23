@@ -1,3 +1,6 @@
+/**
+ * Modifies the toString() methods for arrays. Just for improved debugging only
+ */
 module.exports = (() => {
 	Array.prototype.toString = function() {
 		let str = "";

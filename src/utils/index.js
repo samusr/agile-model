@@ -1,5 +1,4 @@
 const log = require("./log");
-const spinner = require("./spinner");
 const readFile = require("./read-file");
 const renderEJS = require("./render-ejs");
 const readFolder = require("./read-folder");
@@ -13,17 +12,16 @@ const namesGenerator = require("./generate-names");
 const arrayTostringShim = require("./array-tostring-shim");
 
 module.exports = {
-    log,
-    spinner,
-    getRootDir,
-    createFile,
-    createFolder,
-    deleteObject,
-    pathExists,
-    readFile,
-    readFolder,
-    renderEJS,
-    writeToFile,
-    namesGenerator,
-    arrayTostringShim
+	log,
+	getRootDir,
+	createFile,
+	createFolder,
+	deleteObject,
+	pathExists,
+	readFile,
+	readFolder,
+	renderEJS,
+	writeToFile,
+	namesGenerator,
+	arrayTostringShim
 };
