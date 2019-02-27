@@ -198,6 +198,11 @@ If you discover any errors or malfunctions, please don't hesitate to open a issu
 
 # Changelog
 
+### v3.1.2
+
+-   Fixed issue where creating a new portal overwrites the `/src/server/routes/index.js` file instead of appending to it
+-   Fixed issue where `setup` throws an error when the `portals` array in `/agility.js` is empty
+
 ### v3.1.1
 
 -   Updated ReadME
