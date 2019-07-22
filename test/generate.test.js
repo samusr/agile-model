@@ -12,8 +12,9 @@ describe("Feature test for the 'generate' command", () => {
 		path.destroy(SRC_ROOT);
 	});
 
-	// after(function() {
-	// });
+	after(function() {
+		path.destroy(SRC_ROOT);
+	});
 
 	it("should create a User model", () => {
 		assert.doesNotThrow(function() {
