@@ -1,3 +1,4 @@
+const path = require("path");
 const fse = require("fs-extra");
 const log = require("./log");
 
@@ -10,4 +11,9 @@ const destroy = path => {
 	} else log.warning(`Path does not exist - ${path}`);
 };
 
-module.exports = { exists, destroy };
+const rootDir = () => {
+	if (process.env.NODE_ENV == "development") return path.resolve(__dirname, "../../test/app/") + "/";
+	return process.cwd() + "/";
+};
+
+module.exports = { exists, destroy, rootDir };

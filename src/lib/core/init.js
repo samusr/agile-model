@@ -1,20 +1,17 @@
-const path = require("path");
-const { log, writeToFile, createFile, renderEJS, getRootDir } = require("../../utils");
+const nodePath = require("path");
+const { file, path } = require("../../utils");
 
 /**
  * Creates the agility.config.js file at the root of the project
  */
-module.exports = () => {
+module.exports = function() {
 	try {
-		const folderRoot = getRootDir();
-		const agilityFilePath = `${folderRoot}agility.js`;
-		createFile(agilityFilePath);
-
-		const templatePath = path.join(__dirname, "../../template/agility.js.ejs");
-		writeToFile(agilityFilePath, renderEJS(templatePath));
-
-		log(`Created agility.js @ ${folderRoot}`, "success");
+		const APP_ROOT = path.rootDir();
+		const agilityFilePath = APP_ROOT + "agility.js";
+		const agilityTemplatePath = nodePath.join(__dirname, "../../template/agility.js.ejs");
+		file.create(agilityFilePath);
+		file.write(agilityFilePath, file.render(agilityTemplatePath));
 	} catch (err) {
-		log(err.message, "error");
+		console.error(err);
 	}
 };
