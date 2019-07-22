@@ -1,27 +1,8 @@
 const log = require("./log");
-const readFile = require("./read-file");
-const renderEJS = require("./render-ejs");
-const readFolder = require("./read-folder");
-const createFile = require("./create-file");
-const createFolder = require("./create-folder");
-const deleteObject = require("./delete-object");
-const pathExists = require("./path-exists");
-const getRootDir = require("./get-root-dir");
-const writeToFile = require("./write-to-file");
-const namesGenerator = require("./generate-names");
+const path = require("./path");
+const file = require("./file");
+const folder = require("./folder");
+const name = require("./name");
 const arrayTostringShim = require("./array-tostring-shim");
 
-module.exports = {
-	log,
-	getRootDir,
-	createFile,
-	createFolder,
-	deleteObject,
-	pathExists,
-	readFile,
-	readFolder,
-	renderEJS,
-	writeToFile,
-	namesGenerator,
-	arrayTostringShim
-};
+module.exports = { log, path, file, folder, name, arrayTostringShim };
