@@ -1,9 +1,9 @@
-process.env.NODE_ENV = "development";
+process.env.NODE_ENV = "testing";
 
 const fse = require("fs-extra");
 const nodePath = require("path");
 const { assert } = require("chai");
-const { init } = require("../src/lib/core");
+const { init } = require("../src/lib");
 const { path, file } = require("../src/utils");
 
 describe("Feature test for the 'init' command", () => {

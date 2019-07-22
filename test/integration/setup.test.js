@@ -14,7 +14,7 @@
 
 // describe("Feature test for the setup command", () => {
 // 	before(() => {
-// 		process.env.NODE_ENV = "development";
+// 		process.env.NODE_ENV = "testing";
 // 		cleanUpTestAppDir();
 // 	});
 

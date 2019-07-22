@@ -1,4 +1,4 @@
-const { Model, Relation } = require("../class");
+const { Model, Relation } = require("./class");
 
 /**
  * Accepts an array of model names and string relation (usually from the agility.js file)

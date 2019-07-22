@@ -1,9 +1,9 @@
 const <%= model.name %> = require("../../../models/<%= model.filename %>");
 
-module.exports = function(uuid, args) {
+module.exports = function(uuid, relationString = "") {
     return <%= model.name %>.query()
         .where({ uuid })
-        .patch(args)
+        .eager(relationString)
         .returning("*")
         .first();
 };

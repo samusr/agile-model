@@ -2,7 +2,7 @@ const path = require("path");
 const generate = require("./generate");
 const createPortal = require("./create-portal");
 const agilityParser = require("./agility-parser");
-const { pathExists, renderEJS, getRootDir, log, createFile, createFolder, writeToFile } = require("../../utils");
+const { pathExists, renderEJS, getRootDir, log, createFile, createFolder, writeToFile } = require("../utils");
 
 /**
  * Configures the project foder

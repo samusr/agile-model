@@ -15,7 +15,7 @@ const read = (path, mode = "all") => {
 	}
 
 	if (!fse.lstatSync(path).isDirectory()) {
-		log("Search path is not a directory. Empty array returned", "warning");
+		log.warning("Search path is not a directory. Empty array returned");
 		return [];
 	}
 

@@ -1,5 +1,7 @@
 const <%= model.name %> = require("../../../models/<%= model.filename %>");
 
-module.exports = function(id) {
-    return <%= model.name %>.query().deleteById(id);
+module.exports = function(uuid) {
+    return <%= model.name %>.query()
+        .where({ uuid })
+        .del();
 };

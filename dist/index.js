@@ -1,13 +1,18 @@
 #!/usr/bin/env node
 const commander = require("commander");
-const { init } = require("../src/lib/core");
-// const { Model } = require("../src/lib/class");
-require("../src/utils/array-tostring-shim");
+const { init, generate } = require("../src/lib");
+const { misc } = require("../src/utils");
+misc.arrayToStringShim();
 
 commander
 	.command("init")
 	.description("Creates the agility.js config file at the root of the project.")
 	.action(init);
+
+commander
+	.command("generate <entity>")
+	.description("Generates a new model and associated database and migration files.")
+	.action(generate);
 
 // commander
 // 	.command("setup")
@@ -16,13 +21,6 @@ commander
 // 			"If there's an agility.js file in the root, it is used to setup the models and relations."
 // 	)
 // 	.action(setup);
-
-// commander
-// 	.command("generate <entity>")
-// 	.description("Generates a new model and associated database and migration files.")
-// 	.action(entityName => {
-// 		generate(new Model(entityName));
-// 	});
 
 // commander
 // 	.command("create-portal <portalName>")

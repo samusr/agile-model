@@ -12,7 +12,7 @@ const destroy = path => {
 };
 
 const rootDir = () => {
-	if (process.env.NODE_ENV == "development") return path.resolve(__dirname, "../../test/app/") + "/";
+	if (process.env.NODE_ENV == "testing") return path.resolve(__dirname, "../../test/app/") + "/";
 	return process.cwd() + "/";
 };
 

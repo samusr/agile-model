@@ -4,7 +4,7 @@
 	"description": "agile-model is an express project generator designed to ease the process of setting up a PERN (PostgreSQL, ExpressJS, React, NodeJS) project",
 	"main": "./bin/index.js",
 	"scripts": {
-		"test": "mocha --recursive --exit"
+		"test": "mocha"
 	},
 	"bin": {
 		"agile-model": "./dist/index.js"
@@ -36,8 +36,8 @@
 		"ejs": "^2.6.2",
 		"fs-extra": "^8.1.0",
 		"lodash": "^4.17.15",
-		"moment": "^2.24.0",
-		"pluralize": "^8.0.0"
+		"pluralize": "^8.0.0",
+		"prettier": "^1.18.2"
 	},
 	"devDependencies": {
 		"chai": "^4.2.0",

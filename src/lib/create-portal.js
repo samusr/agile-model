@@ -1,5 +1,5 @@
 const path = require("path");
-const { renderEJS, getRootDir, createFile, createFolder, writeToFile, readFolder } = require("../../utils");
+const { renderEJS, getRootDir, createFile, createFolder, writeToFile, readFolder } = require("../utils");
 
 /**
  * Creates the client-side files and folders that represent a portal

@@ -17,7 +17,7 @@
 
 // 	before(() => {
 // 		portalName = "backoffice";
-// 		process.env.NODE_ENV = "development";
+// 		process.env.NODE_ENV = "testing";
 // 		// Setup should be run before any portals can be created
 // 		cleanUpTestAppDir();
 // 	});
