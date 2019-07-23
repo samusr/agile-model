@@ -7,7 +7,7 @@ const { init } = require("../src/lib");
 const { path, file } = require("../src/utils");
 
 describe("Feature test for the 'init' command", () => {
-	const agilityPath = path.rootDir() + "agility.js";
+	const agilityPath = path.resolve("agility.js");
 
 	after(function() {
 		fse.removeSync(agilityPath);

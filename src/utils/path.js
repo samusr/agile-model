@@ -2,6 +2,12 @@ const path = require("path");
 const fse = require("fs-extra");
 const log = require("./log");
 
+const rootDir = () => {
+	if (process.env.NODE_ENV == "testing") {
+		return path.resolve(__dirname, "../../test/app/");
+	} else return process.cwd();
+};
+
 const exists = path => fse.pathExistsSync(path);
 
 const destroy = path => {
@@ -11,9 +17,10 @@ const destroy = path => {
 	} else log.warning(`Path does not exist - ${path}`);
 };
 
-const rootDir = () => {
-	if (process.env.NODE_ENV == "testing") return path.resolve(__dirname, "../../test/app/") + "/";
-	return process.cwd() + "/";
+const resolve = (objectPath, root = rootDir()) => {
+	if (objectPath.startsWith("/")) {
+		return `${root}${objectPath}`;
+	} else return `${root}/${objectPath}`;
 };
 
-module.exports = { exists, destroy, rootDir };
+module.exports = { rootDir, exists, destroy, resolve };

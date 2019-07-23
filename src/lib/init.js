@@ -6,7 +6,7 @@ const { file, path } = require("../utils");
  */
 module.exports = function() {
 	try {
-		const agilityFilePath = path.rootDir() + "agility.js";
+		const agilityFilePath = path.resolve("agility.js");
 		const templatePath = nodePath.join(__dirname, "../template/agility.js.ejs");
 		const content = file.render(templatePath);
 		file.create(agilityFilePath);

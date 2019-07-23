@@ -3,19 +3,19 @@ const { assert } = require("chai");
 const { file, folder, path, name } = require("../src/utils");
 const UTILS_TEST_DIR = nodePath.resolve(__dirname, "utils") + "/";
 
-function reset() {
-	// Delete all files and folders in the test directory
-	const allPaths = folder.read(UTILS_TEST_DIR);
-	for (const objectPath of allPaths) path.destroy(UTILS_TEST_DIR + objectPath);
-	// Recreate the .gitignore file
-	file.create(UTILS_TEST_DIR + ".gitignore");
-	file.write(UTILS_TEST_DIR + ".gitignore", "*\n!.gitignore");
-}
-
 describe("Unit tests for utilities", () => {
 	const folderPaths = ["folder-1", "folder-2", "folder-3"];
 	const filePaths = ["file-1", "file-2", "file-3"];
 	const testString = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc luctus hendrerit nisl vel interdum.";
+
+	function reset() {
+		// Delete all files and folders in the test directory
+		const objectPaths = folder.read(UTILS_TEST_DIR);
+		for (const objectPath of objectPaths) path.destroy(UTILS_TEST_DIR + objectPath);
+		// Recreate the .gitignore file
+		file.create(UTILS_TEST_DIR + ".gitignore");
+		file.write(UTILS_TEST_DIR + ".gitignore", "*\n!.gitignore");
+	}
 
 	before(reset);
 	after(reset);

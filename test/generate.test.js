@@ -6,7 +6,7 @@ const { generate } = require("../src/lib");
 const { path } = require("../src/utils");
 
 describe("Feature test for the 'generate' command", () => {
-	const SRC_ROOT = path.rootDir() + "src/";
+	const SRC_ROOT = path.resolve("src/");
 
 	before(function() {
 		path.destroy(SRC_ROOT);
