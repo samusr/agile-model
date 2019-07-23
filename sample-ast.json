@@ -1,0 +1,264 @@
+{
+	"type": "Program",
+	"body": [
+		{
+			"type": "ExpressionStatement",
+			"expression": {
+				"type": "AssignmentExpression",
+				"operator": "=",
+				"left": {
+					"type": "MemberExpression",
+					"computed": false,
+					"object": {
+						"type": "Identifier",
+						"name": "module"
+					},
+					"property": {
+						"type": "Identifier",
+						"name": "exports"
+					}
+				},
+				"right": {
+					"type": "ClassExpression",
+					"id": {
+						"type": "Identifier",
+						"name": "User"
+					},
+					"superClass": {
+						"type": "Identifier",
+						"name": "Model"
+					},
+					"body": {
+						"type": "ClassBody",
+						"body": [
+							{
+								"type": "MethodDefinition",
+								"key": {
+									"type": "Identifier",
+									"name": "tableName"
+								},
+								"computed": false,
+								"value": {
+									"type": "FunctionExpression",
+									"id": null,
+									"params": [],
+									"body": {
+										"type": "BlockStatement",
+										"body": [
+											{
+												"type": "ReturnStatement",
+												"argument": {
+													"type": "Literal",
+													"value": "users",
+													"raw": "\"users\""
+												}
+											}
+										]
+									},
+									"generator": false,
+									"expression": false,
+									"async": false
+								},
+								"kind": "get",
+								"static": true
+							},
+							{
+								"type": "MethodDefinition",
+								"key": {
+									"type": "Identifier",
+									"name": "relationMappings"
+								},
+								"computed": false,
+								"value": {
+									"type": "FunctionExpression",
+									"id": null,
+									"params": [],
+									"body": {
+										"type": "BlockStatement",
+										"body": [
+											{
+												"type": "ReturnStatement",
+												"argument": {
+													"type": "ObjectExpression",
+													"properties": [
+														{
+															"type": "Property",
+															"key": {
+																"type": "Identifier",
+																"name": "posts"
+															},
+															"computed": false,
+															"value": {
+																"type": "ObjectExpression",
+																"properties": [
+																	{
+																		"type": "Property",
+																		"key": {
+																			"type": "Identifier",
+																			"name": "relation"
+																		},
+																		"computed": false,
+																		"value": {
+																			"type": "MemberExpression",
+																			"computed": false,
+																			"object": {
+																				"type": "Identifier",
+																				"name": "Model"
+																			},
+																			"property": {
+																				"type": "Identifier",
+																				"name": "HasManyRelation"
+																			}
+																		},
+																		"kind": "init",
+																		"method": false,
+																		"shorthand": false
+																	},
+																	{
+																		"type": "Property",
+																		"key": {
+																			"type": "Identifier",
+																			"name": "modelClass"
+																		},
+																		"computed": false,
+																		"value": {
+																			"type": "CallExpression",
+																			"callee": {
+																				"type": "Identifier",
+																				"name": "require"
+																			},
+																			"arguments": [
+																				{
+																					"type": "Literal",
+																					"value": "./post",
+																					"raw": "\"./post\""
+																				}
+																			]
+																		},
+																		"kind": "init",
+																		"method": false,
+																		"shorthand": false
+																	},
+																	{
+																		"type": "Property",
+																		"key": {
+																			"type": "Identifier",
+																			"name": "join"
+																		},
+																		"computed": false,
+																		"value": {
+																			"type": "ObjectExpression",
+																			"properties": [
+																				{
+																					"type": "Property",
+																					"key": {
+																						"type": "Identifier",
+																						"name": "from"
+																					},
+																					"computed": false,
+																					"value": {
+																						"type": "Literal",
+																						"value": "users.id",
+																						"raw": "\"users.id\""
+																					},
+																					"kind": "init",
+																					"method": false,
+																					"shorthand": false
+																				},
+																				{
+																					"type": "Property",
+																					"key": {
+																						"type": "Identifier",
+																						"name": "to"
+																					},
+																					"computed": false,
+																					"value": {
+																						"type": "Literal",
+																						"value": "posts.user_id",
+																						"raw": "\"posts.user_id\""
+																					},
+																					"kind": "init",
+																					"method": false,
+																					"shorthand": false
+																				}
+																			]
+																		},
+																		"kind": "init",
+																		"method": false,
+																		"shorthand": false
+																	}
+																]
+															},
+															"kind": "init",
+															"method": false,
+															"shorthand": false
+														}
+													]
+												}
+											}
+										]
+									},
+									"generator": false,
+									"expression": false,
+									"async": false
+								},
+								"kind": "get",
+								"static": true
+							},
+							{
+								"type": "MethodDefinition",
+								"key": {
+									"type": "Identifier",
+									"name": "$beforeInsert"
+								},
+								"computed": false,
+								"value": {
+									"type": "FunctionExpression",
+									"id": null,
+									"params": [],
+									"body": {
+										"type": "BlockStatement",
+										"body": [
+											{
+												"type": "ExpressionStatement",
+												"expression": {
+													"type": "AssignmentExpression",
+													"operator": "=",
+													"left": {
+														"type": "MemberExpression",
+														"computed": false,
+														"object": {
+															"type": "ThisExpression"
+														},
+														"property": {
+															"type": "Identifier",
+															"name": "uuid"
+														}
+													},
+													"right": {
+														"type": "CallExpression",
+														"callee": {
+															"type": "Identifier",
+															"name": "uuid"
+														},
+														"arguments": []
+													}
+												}
+											}
+										]
+									},
+									"generator": false,
+									"expression": false,
+									"async": false
+								},
+								"kind": "method",
+								"static": false
+							}
+						]
+					}
+				}
+			}
+		}
+	],
+	"sourceType": "script"
+}

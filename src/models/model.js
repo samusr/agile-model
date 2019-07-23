@@ -1,4 +1,4 @@
-const esprima = require("esprima");
+const recast = require("recast");
 const { singular } = require("pluralize");
 const { name, path, file, misc } = require("../utils");
 
@@ -27,9 +27,9 @@ Model.prototype.existsInProject = function() {
 
 Model.prototype.relationMappings = function() {
 	try {
-		const codeTree = esprima.parseModule(file.read(this.filepath));
-		return misc.searchCodeTree(codeTree, "MethodDefinition", function(node) {
-			return node.key.type == "Identifier" && node.key.name == "relationMappings";
+		const code = recast.parse(file.read(this.filepath));
+		return misc.searchCodeTree(code, "MethodDefinition", function(node) {
+			return node.key.name == "relationMappings";
 		})[0];
 	} catch (err) {
 		return false;
@@ -38,9 +38,9 @@ Model.prototype.relationMappings = function() {
 
 Model.prototype.isRelatedTo = function(otherModel, relationType) {
 	try {
-		const rm = this.relationMappings();
-		const objs = misc.searchCodeTree(rm, "ReturnStatement", () => true);
-		const exp = misc.searchCodeTree(objs, "ObjectExpression", () => true)[0];
+		const methodDefinition = this.relationMappings();
+		const returnStatements = misc.searchCodeTree(methodDefinition, "ReturnStatement", () => true);
+		const objectExpression = misc.searchCodeTree(returnStatements, "ObjectExpression", () => true)[0];
 
 		if (!(otherModel instanceof Model)) otherModel = new Model(otherModel);
 		const objectionRelations = {
@@ -49,7 +49,7 @@ Model.prototype.isRelatedTo = function(otherModel, relationType) {
 			BelongsToOneRelation: "BELONGS_TO_ONE"
 		};
 
-		for (const p of exp.properties) {
+		for (const p of objectExpression.properties) {
 			const relationObject = p.value.properties[0];
 			const relationMatch =
 				relationObject.value.type == "MemberExpression" && objectionRelations[relationObject.value.property.name] == relationType;

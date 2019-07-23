@@ -1,0 +1,112 @@
+{
+    "type": "Property",
+    "key": {
+        "type": "Identifier",
+        "name": "<%= rModel.singular_tablename %>"
+    },
+    "computed": false,
+    "value": {
+        "type": "ObjectExpression",
+        "properties": [
+            {
+                "type": "Property",
+                "key": {
+                    "type": "Identifier",
+                    "name": "relation"
+                },
+                "computed": false,
+                "value": {
+                    "type": "MemberExpression",
+                    "computed": false,
+                    "object": {
+                        "type": "Identifier",
+                        "name": "Model"
+                    },
+                    "property": {
+                        "type": "Identifier",
+                        "name": "HasOneRelation"
+                    }
+                },
+                "kind": "init",
+                "method": false,
+                "shorthand": false
+            },
+            {
+                "type": "Property",
+                "key": {
+                    "type": "Identifier",
+                    "name": "modelClass"
+                },
+                "computed": false,
+                "value": {
+                    "type": "CallExpression",
+                    "callee": {
+                        "type": "Identifier",
+                        "name": "require"
+                    },
+                    "arguments": [
+                        {
+                            "type": "Literal",
+                            "value": "./<%= rModel.filename %>",
+                            "raw": "\"./<%= rModel.filename %>\""
+                        }
+                    ]
+                },
+                "kind": "init",
+                "method": false,
+                "shorthand": false
+            },
+            {
+                "type": "Property",
+                "key": {
+                    "type": "Identifier",
+                    "name": "join"
+                },
+                "computed": false,
+                "value": {
+                    "type": "ObjectExpression",
+                    "properties": [
+                        {
+                            "type": "Property",
+                            "key": {
+                                "type": "Identifier",
+                                "name": "from"
+                            },
+                            "computed": false,
+                            "value": {
+                                "type": "Literal",
+                                "value": "<%= lModel.tablename %>.id",
+                                "raw": "\"<%= lModel.tablename %>.id\""
+                            },
+                            "kind": "init",
+                            "method": false,
+                            "shorthand": false
+                        },
+                        {
+                            "type": "Property",
+                            "key": {
+                                "type": "Identifier",
+                                "name": "to"
+                            },
+                            "computed": false,
+                            "value": {
+                                "type": "Literal",
+                                "value": "<%= rModel.tablename %>.<%= lModel.singular_tablename %>_id",
+                                "raw": "\"<%= rModel.tablename %>.<%= lModel.singular_tablename %>_id\""
+                            },
+                            "kind": "init",
+                            "method": false,
+                            "shorthand": false
+                        }
+                    ]
+                },
+                "kind": "init",
+                "method": false,
+                "shorthand": false
+            }
+        ]
+    },
+    "kind": "init",
+    "method": false,
+    "shorthand": false
+}
