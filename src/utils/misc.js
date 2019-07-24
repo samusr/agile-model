@@ -18,14 +18,44 @@ function arrayToStringShim() {
 	};
 }
 
-function updateDBIndexFile() {
-	const dbFolderPath = path.resolve("src/server/services/db/");
+function readAgilityConfig() {
+	const agilityPath = path.resolve("agility.js");
+	if (!path.exists(agilityPath)) throw new Error("Cannot find 'agility.js' config file. Run 'agile-model init' first");
+
+	const config = require(agilityPath);
+	if (
+		!config.models ||
+		!config.models.directory ||
+		!config.migrations ||
+		!config.migrations.directory ||
+		!config.database ||
+		!config.database.directory
+	)
+		// TODO: Add links to READMe in errors
+		throw new Error("Invalid configuration. Ensure that your config file is setup correctly");
+
+	global.MODELS_DIRECTORY = config.models.directory;
+	global.MIGRATIONS_DIRECTORY = config.migrations.directory;
+	global.DATABASE_DIRECTORY = config.database.directory;
+	return config;
+}
+
+function updateIndexFile(indexRoot) {
+	const dbFolderPath = path.resolve(indexRoot);
 	const modelDBGroups = folder.read(dbFolderPath, "folder");
 	const modelIndexImports = modelDBGroups.map(group => `const ${_.camelCase(group)} = require("./${group}");`);
 	const modelIndexVarNames = modelDBGroups.map(group => `${_.camelCase(group)},`);
-	const content = prettier.format(`${modelIndexImports.join("\n")}\n\nmodule.exports = {\n${modelIndexVarNames.join("\n")}};`, prettierConfig);
-	file.create(dbFolderPath + "index.js");
-	file.write(dbFolderPath + "index.js", content);
+	const content = prettier.format(
+		`
+        ${modelIndexImports.join("\n")}
+        \n\n
+        module.exports = {\n
+            ${modelIndexVarNames.join("\n")}
+        };`,
+		prettierConfig
+	);
+	file.create(dbFolderPath + "/index.js");
+	file.write(dbFolderPath + "/index.js", content);
 }
 
 function searchCodeTree(rootNode, type, evalFn, depth = 0) {
@@ -61,4 +91,4 @@ const prettierConfig = {
 	trailingComma: "none"
 };
 
-module.exports = { arrayToStringShim, updateDBIndexFile, searchCodeTree, prettierConfig };
+module.exports = { arrayToStringShim, readAgilityConfig, updateIndexFile, searchCodeTree, prettierConfig };

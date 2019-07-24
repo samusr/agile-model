@@ -18,9 +18,7 @@ const destroy = path => {
 };
 
 const resolve = (objectPath, root = rootDir()) => {
-	if (objectPath.startsWith("/")) {
-		return `${root}${objectPath}`;
-	} else return `${root}/${objectPath}`;
+	return path.resolve(root, objectPath);
 };
 
 module.exports = { rootDir, exists, destroy, resolve };

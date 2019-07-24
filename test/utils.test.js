@@ -1,11 +1,12 @@
-const nodePath = require("path");
+process.env.NODE_ENV = "testing";
+
 const { assert } = require("chai");
 const { file, folder, path, name } = require("../src/utils");
-const UTILS_TEST_DIR = nodePath.resolve(__dirname, "utils") + "/";
 
 describe("Unit tests for utilities", () => {
-	const folderPaths = ["folder-1", "folder-2", "folder-3"];
-	const filePaths = ["file-1", "file-2", "file-3"];
+	const UTILS_TEST_DIR = path.resolve("utils", __dirname);
+	const folderPaths = ["/folder-1", "/folder-2", "/folder-3"];
+	const filePaths = ["/file-1", "/file-2", "/file-3"];
 	const testString = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc luctus hendrerit nisl vel interdum.";
 
 	function reset() {
@@ -13,8 +14,8 @@ describe("Unit tests for utilities", () => {
 		const objectPaths = folder.read(UTILS_TEST_DIR);
 		for (const objectPath of objectPaths) path.destroy(UTILS_TEST_DIR + objectPath);
 		// Recreate the .gitignore file
-		file.create(UTILS_TEST_DIR + ".gitignore");
-		file.write(UTILS_TEST_DIR + ".gitignore", "*\n!.gitignore");
+		file.create(UTILS_TEST_DIR + "/.gitignore");
+		file.write(UTILS_TEST_DIR + "/.gitignore", "*\n!.gitignore");
 	}
 
 	before(reset);
@@ -27,9 +28,9 @@ describe("Unit tests for utilities", () => {
 	});
 
 	it("should create 3 files", () => {
-		for (const path of filePaths)
+		for (const objectPath of filePaths)
 			assert.doesNotThrow(function() {
-				file.create(UTILS_TEST_DIR + path);
+				file.create(UTILS_TEST_DIR + objectPath);
 			});
 	});
 

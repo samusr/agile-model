@@ -1,9 +1,9 @@
-const nodePath = require("path");
 const prettier = require("prettier");
 const { path, file, folder, misc } = require("../utils");
 const { Model } = require("../models");
 
 module.exports = function(name) {
+	misc.readAgilityConfig();
 	createModelFile(name);
 	createMigrationFile(name);
 	createDBServiceFiles(name);
@@ -11,19 +11,20 @@ module.exports = function(name) {
 
 function createModelFile(n) {
 	const model = new Model(n);
-	const templatePath = nodePath.join(__dirname, "../template/server/models/model.js.ejs");
+	const templatePath = path.resolve("../template/server/models/model.js.ejs", __dirname);
 	const content = prettier.format(file.render(templatePath, { model }), misc.prettierConfig);
-	const modelPath = path.resolve(`src/server/models/${model.filename}`);
-	file.create(modelPath);
-	file.write(modelPath, content);
+
+	file.create(model.filepath);
+	file.write(model.filepath, content);
 }
 
 function createMigrationFile(n) {
 	const model = new Model(n);
 	const migrationName = `${formattedTime()}_create_${model.tablename}_table.js`;
-	const templatePath = nodePath.join(__dirname, "../template/server/migrations/migration.js.ejs");
+	const templatePath = path.resolve("../template/server/migrations/migration.js.ejs", __dirname);
 	const content = prettier.format(file.render(templatePath, { model }), misc.prettierConfig);
-	const migrationPath = path.resolve(`src/server/migrations/${migrationName}`);
+	const migrationPath = path.resolve(`${MIGRATIONS_DIRECTORY}/${migrationName}`);
+
 	file.create(migrationPath);
 	file.write(migrationPath, content);
 }
@@ -42,8 +43,8 @@ function pad(str) {
 function createDBServiceFiles(n) {
 	const model = new Model(n);
 	const modelFileNameWithoutExtension = model.filename.split(".")[0];
-	const dbServicePath = path.resolve(`src/server/services/db/${modelFileNameWithoutExtension}/`);
-	folder.create(nodePath.join(dbServicePath));
+	const dbServicePath = path.resolve(`${DATABASE_DIRECTORY}/${modelFileNameWithoutExtension}/`);
+	folder.create(dbServicePath);
 
 	const dbServiceFileParams = [
 		["index.js", "index.js.ejs"],
@@ -59,13 +60,14 @@ function createDBServiceFiles(n) {
 	const args = { model };
 
 	for (const params of dbServiceFileParams) {
-		file.create(dbServicePath + params[0]);
+		const filePath = `${dbServicePath}/${params[0]}`;
+		file.create(filePath);
 		const targetFile = "../template/server/services/db/entity/" + params[1];
-		const content = prettier.format(file.render(nodePath.join(__dirname, targetFile), args), misc.prettierConfig);
-		file.write(dbServicePath + params[0], content);
+		const content = prettier.format(file.render(path.resolve(targetFile, __dirname), args), misc.prettierConfig);
+		file.write(filePath, content);
 	}
 
-	misc.updateDBIndexFile();
+	misc.updateIndexFile(path.resolve(DATABASE_DIRECTORY));
 
 	// Before we modify the index file, we need to create the 'find-by-relation.js' files
 	// for (const relation of model.relations) {

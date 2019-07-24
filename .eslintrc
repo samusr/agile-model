@@ -12,5 +12,10 @@
 		"no-console": "off",
 		"semi": ["error", "always"],
 		"handle-callback-err": "error"
+	},
+	"globals": {
+		"MODELS_DIRECTORY": true,
+		"MIGRATIONS_DIRECTORY": true,
+		"DATABASE_DIRECTORY": true
 	}
 }

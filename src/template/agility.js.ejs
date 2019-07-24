@@ -1,11 +1,14 @@
-/**
- * Modify this file with the models and relations you want in your project
- * Please refer to the agile-model documentation to find out more
- * https://github.com/kwameopareasiedu/agile-model#using-the-agilityjs-file-for-initial-configuration
- */
-
 module.exports = {
-	models: [], // Eg. ["User", "Account", "Post"]
-	relations: "", // Eg. "User HAS_ONE Account, User HAS_MANY Post"
+	models: {
+		directory: "src/server/models",
+		names: [], // Eg. ["User", "Account", "Post"]
+		relations: "" // Eg. "User HAS_ONE Account, User HAS_MANY Post"
+	},
+	migrations: {
+		directory: "src/server/migrations"
+	},
+	database: {
+		directory: "src/server/services/db"
+	},
 	portals: []
 };
