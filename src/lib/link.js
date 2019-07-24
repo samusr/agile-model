@@ -1,33 +1,33 @@
-const nodePath = require("path");
 const recast = require("recast");
 const prettier = require("prettier");
-const { Model, Relation } = require("../models");
-const { log, file, misc } = require("../utils");
+const { Model, Relation, Association } = require("../models");
+const { file, path, misc } = require("../utils");
 
 module.exports = function(lModelName, rModelName, { relationType }) {
-	try {
-		const relation = new Relation(relationType);
-		const lModel = new Model(lModelName);
-		const rModel = new Model(rModelName);
+	misc.readAgilityConfig();
+	const relation = new Relation(relationType);
+	const lModel = new Model(lModelName);
+	const rModel = new Model(rModelName);
 
-		// Check if models exist
-		if (!lModel.existsInProject()) throw new Error(`Model does not exist - ${lModel.name}`);
-		if (!rModel.existsInProject()) throw new Error(`Model does not exist - ${rModel.name}`);
+	// Check if models exist
+	if (!lModel.existsInProject()) throw new Error(`Model does not exist - ${lModel.name}`);
+	if (!rModel.existsInProject()) throw new Error(`Model does not exist - ${rModel.name}`);
 
-		// If models are not already related, inject the appropriate relations into both files
-		if (!lModel.isRelatedTo(rModel, relation.type)) {
-			ensureRelationMappingsFunctionExists(lModel);
-			injectRelationCode(lModel, rModel, relation.type);
+	// If models are not already related, inject the appropriate relations into both files
+	if (!lModel.isRelatedTo(rModel, relation.type)) {
+		ensureRelationMappingsFunctionExists(lModel);
+		injectRelationCode(lModel, rModel, relation.type);
+		if (relation.type == "BELONGS_TO_ONE") {
+			createFindByRelationIdDBFile(lModel, rModel);
 		}
+	}
 
-		if (!rModel.isRelatedTo(lModel, relation.reverseType)) {
-			ensureRelationMappingsFunctionExists(rModel);
-			injectRelationCode(rModel, lModel, relation.reverseType);
-			// For the related model
+	if (!rModel.isRelatedTo(lModel, relation.reverseType)) {
+		ensureRelationMappingsFunctionExists(rModel);
+		injectRelationCode(rModel, lModel, relation.reverseType);
+		if (relation.reverseType == "BELONGS_TO_ONE") {
+			createFindByRelationIdDBFile(rModel, lModel);
 		}
-	} catch (err) {
-		log.error(err);
-		return process.exit(-1);
 	}
 };
 
@@ -51,7 +51,7 @@ function ensureRelationMappingsFunctionExists(model) {
 		} else return;
 	}
 
-	const templatePath = nodePath.join(__dirname, "../template/server/models/model-relation-mappings.js.ejs");
+	const templatePath = path.resolve("../template/server/models/model-relation-mappings.js.ejs", __dirname);
 	const parsedContent = JSON.parse(file.render(templatePath));
 	classBody.body.push(parsedContent);
 
@@ -73,19 +73,19 @@ function injectRelationCode(model, otherModel, relationType) {
 
 	switch (relationType) {
 		case "HAS_ONE": {
-			const templatePath = nodePath.join(__dirname, "../template/server/models/has-one-relation-property.js.ejs");
+			const templatePath = path.resolve("../template/server/models/has-one-relation-property.js.ejs", __dirname);
 			const parsedContent = JSON.parse(file.render(templatePath, { lModel: model, rModel: otherModel }));
 			returnStatement.argument.properties.push(parsedContent);
 			break;
 		}
 		case "HAS_MANY": {
-			const templatePath = nodePath.join(__dirname, "../template/server/models/has-many-relation-property.js.ejs");
+			const templatePath = path.resolve("../template/server/models/has-many-relation-property.js.ejs", __dirname);
 			const parsedContent = JSON.parse(file.render(templatePath, { lModel: model, rModel: otherModel }));
 			returnStatement.argument.properties.push(parsedContent);
 			break;
 		}
 		case "BELONGS_TO_ONE": {
-			const templatePath = nodePath.join(__dirname, "../template/server/models/belongs-to-one-relation-property.js.ejs");
+			const templatePath = path.resolve("../template/server/models/belongs-to-one-relation-property.js.ejs", __dirname);
 			const parsedContent = JSON.parse(file.render(templatePath, { lModel: model, rModel: otherModel }));
 			returnStatement.argument.properties.push(parsedContent);
 			break;
@@ -95,4 +95,15 @@ function injectRelationCode(model, otherModel, relationType) {
 	file.write(model.filepath, prettier.format(recast.print(modelCode).code, misc.prettierConfig));
 }
 
-// function createFindByRelatedModelIdDBFile = (relationType)
+function createFindByRelationIdDBFile(model, relatedModel) {
+	const association = new Association(relatedModel, model);
+	const modelFileNameWithoutExtension = model.filename.split(".")[0];
+	const dbServicePath = path.resolve(`${DATABASE_DIRECTORY}/${modelFileNameWithoutExtension}/`);
+
+	if (!path.exists(`${dbServicePath}/${association.dbRelationFileName}`)) {
+		file.create(`${dbServicePath}/${association.dbRelationFileName}`);
+		const content = file.render(path.resolve("../template/server/services/db/entity/find-by-relation-id.js.ejs", __dirname), { association });
+		file.write(`${dbServicePath}/${association.dbRelationFileName}`, content);
+		misc.updateIndex(dbServicePath, "file");
+	}
+}

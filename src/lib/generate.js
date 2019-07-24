@@ -67,17 +67,5 @@ function createDBServiceFiles(n) {
 		file.write(filePath, content);
 	}
 
-	misc.updateIndexFile(path.resolve(DATABASE_DIRECTORY));
-
-	// Before we modify the index file, we need to create the 'find-by-relation.js' files
-	// for (const relation of model.relations) {
-	// 	if (relation.type == "BELONGS_TO_ONE") {
-	// 		const modelPair = new ModelAssociationPair(relation.model, model);
-	// 		createFile(nodePath.join(dbServicePath, modelPair.dbRelationFileName));
-	// 		const content = renderEJS(nodePath.join(__dirname, "../../template/server/services/db/entity/find-by-relation-id.js.ejs"), {
-	// 			pair: modelPair
-	// 		});
-	// 		writeToFile(nodePath.join(dbServicePath, modelPair.dbRelationFileName), content);
-	// 	}
-	// }
+	misc.updateIndex(path.resolve(DATABASE_DIRECTORY), "folder");
 }

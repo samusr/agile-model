@@ -40,22 +40,26 @@ function readAgilityConfig() {
 	return config;
 }
 
-function updateIndexFile(indexRoot) {
-	const dbFolderPath = path.resolve(indexRoot);
-	const modelDBGroups = folder.read(dbFolderPath, "folder");
-	const modelIndexImports = modelDBGroups.map(group => `const ${_.camelCase(group)} = require("./${group}");`);
-	const modelIndexVarNames = modelDBGroups.map(group => `${_.camelCase(group)},`);
+function updateIndex(pathToFolder, mode) {
+	if (!mode) throw new Error("updateIndex requires mode to be 'file' or 'folder'");
+	const indexPath = path.resolve(pathToFolder);
+	const groups = folder
+		.read(indexPath, mode)
+		.map(group => group.split(".")[0])
+		.filter(group => group != "index");
+	const groupIndexImports = groups.map(group => `const ${_.camelCase(group)} = require("./${group}");`);
+	const groupIndexVarNames = groups.map(group => `${_.camelCase(group)},`);
 	const content = prettier.format(
 		`
-        ${modelIndexImports.join("\n")}
+        ${groupIndexImports.join("\n")}
         \n\n
         module.exports = {\n
-            ${modelIndexVarNames.join("\n")}
+            ${groupIndexVarNames.join("\n")}
         };`,
 		prettierConfig
 	);
-	file.create(dbFolderPath + "/index.js");
-	file.write(dbFolderPath + "/index.js", content);
+	file.create(indexPath + "/index.js");
+	file.write(indexPath + "/index.js", content);
 }
 
 function searchCodeTree(rootNode, type, evalFn, depth = 0) {
@@ -91,4 +95,4 @@ const prettierConfig = {
 	trailingComma: "none"
 };
 
-module.exports = { arrayToStringShim, readAgilityConfig, updateIndexFile, searchCodeTree, prettierConfig };
+module.exports = { arrayToStringShim, readAgilityConfig, updateIndex, searchCodeTree, prettierConfig };

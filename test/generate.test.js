@@ -5,15 +5,13 @@ const { generate, init } = require("../src/lib");
 const { path } = require("../src/utils");
 
 describe("Feature test for the 'generate' command", () => {
-	const SRC_ROOT = path.resolve("src/");
-
 	before(function() {
-		path.destroy(SRC_ROOT);
+		path.destroy(path.resolve("src/"));
 		init();
 	});
 
 	after(function() {
-		path.destroy(SRC_ROOT);
+		path.destroy(path.resolve("src/"));
 	});
 
 	it("should create a User model", () => {
@@ -24,16 +22,16 @@ describe("Feature test for the 'generate' command", () => {
 
 	it("should verify that test project files for User model exist", () => {
 		const projectFilesPaths = [
-			SRC_ROOT + "/server/models/user.js",
-			SRC_ROOT + "/server/services/db/index.js",
-			SRC_ROOT + "/server/services/db/user/index.js",
-			SRC_ROOT + "/server/services/db/user/create.js",
-			SRC_ROOT + "/server/services/db/user/edit.js",
-			SRC_ROOT + "/server/services/db/user/destroy.js",
-			SRC_ROOT + "/server/services/db/user/find-all.js",
-			SRC_ROOT + "/server/services/db/user/find-by-id.js",
-			SRC_ROOT + "/server/services/db/user/find-by-uuid.js",
-			SRC_ROOT + "/server/services/db/user/find-where-conditions.js"
+			path.resolve(`${MODELS_DIRECTORY}/user.js`),
+			path.resolve(`${DATABASE_DIRECTORY}/index.js`),
+			path.resolve(`${DATABASE_DIRECTORY}/user/index.js`),
+			path.resolve(`${DATABASE_DIRECTORY}/user/create.js`),
+			path.resolve(`${DATABASE_DIRECTORY}/user/edit.js`),
+			path.resolve(`${DATABASE_DIRECTORY}/user/destroy.js`),
+			path.resolve(`${DATABASE_DIRECTORY}/user/find-all.js`),
+			path.resolve(`${DATABASE_DIRECTORY}/user/find-by-id.js`),
+			path.resolve(`${DATABASE_DIRECTORY}/user/find-by-uuid.js`),
+			path.resolve(`${DATABASE_DIRECTORY}/user/find-where-conditions.js`)
 		];
 
 		for (const objectPath of projectFilesPaths) {

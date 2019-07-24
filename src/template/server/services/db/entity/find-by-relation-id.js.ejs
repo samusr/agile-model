@@ -1,8 +1,8 @@
-const <%= pair.belongsToOneModel.name %> = require("../../../models/<%= pair.belongsToOneModel.filename %>");
+const <%= association.rModel.name %> = require("../../../models/<%= association.rModel.filename %>");
 
-module.exports = function(<%= pair.hasManyModelVarName %>, relationString = "") {
-    return <%= pair.belongsToOneModel.name %>.query()
-        .where({ <%= pair.hasManyModel.singular_tablename + "_id" %>: <%= pair.hasManyModelVarName %> })
+module.exports = function(<%= association.lModelVarName %>, relationString = "") {
+    return <%= association.rModel.name %>.query()
+        .where({ <%= association.lModel.singular_tablename + "_id" %>: <%= association.lModelVarName %> })
         .eager(relationString)
         .returning("*");
 };
