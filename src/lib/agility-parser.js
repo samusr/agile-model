@@ -1,17 +1,14 @@
-const { Model, Relation } = require("./class");
+const { Model, Relation } = require("../models");
 
-/**
- * Accepts an array of model names and string relation (usually from the agility.js file)
- * and generates an model array in the order of which should be created first.
- *
- * @param {string[]} modelNames The array of models names
- * @param {string} relationString The string indicating the relationships between the models
- */
-const parse = (modelNames = [], relationString = "") => {
-	if (modelNames.length == 0 || relationString == "") return [];
+module.exports.parse = function(names = [], relationString = "") {
+	if (names.length == 0 || relationString == "") return [];
 
-	let models = createInitialModelArray(modelNames);
-	processModelRelations(models, relationString);
+	const models = [];
+	for (const name of names) {
+		models.push(new Model(name));
+	}
+
+	createModelRelations(models, relationString);
 	resolveCircularDependencies(models);
 	generateReversedRelations(models);
 	sortModels(models);
@@ -19,124 +16,64 @@ const parse = (modelNames = [], relationString = "") => {
 };
 
 /**
- * Creates the initial models array from the model names
- *
- * @param {string[]} modelNames The array of models names
+ * Parses the relation string and creates the appropriate relations for each model
+ * @param {Model[]} models The list of models
+ * @param {String} relationString The relation string
  */
-const createInitialModelArray = modelNames => {
-	const modelsArray = [];
-	for (const modelName of modelNames) modelsArray.push(new Model(modelName));
-	return modelsArray;
-};
+function createModelRelations(models, relationString) {
+	const relations = relationString.split(",").map(r => r.trim());
 
-/**
- * Processes the relation string and adds the relations to each model in the models array
- *
- * @param {Model[]} models The array of models
- * @param {string} relationString The string indicating the relationships between the models
- */
-const processModelRelations = (models, relationString) => {
-	const relationEntries = relationString.split(",").map(r => r.trim());
-	const stage1Models = [];
+	// A relation looks like "User HAS_MANY Post" or "User HAS_MANY [Post Comment]"
+	for (const relation of relations) {
+		const params = Relation.parse(relation);
+		let srcExists = false;
 
-	for (const relationEntry of relationEntries) {
-		const relationEntryComponents = relationEntry.split(" ");
-		const src = relationEntryComponents[0];
-		const type = relationEntryComponents[1];
-		const targets = relationEntryComponents.slice(2).map(t => t.trim().replace(/\[|\]/g, ""));
-
-		if (!isRelationTypeIsValid(type)) throw new Error(`Unknown relation type: ${type}`);
-
-		stage1Models.push({ src, type, targets });
-	}
-
-	// Merge stage1Models with common source models
-	const stage2Models = [];
-	for (const stage1Model of stage1Models) {
-		let modelExistsInStage2 = false;
-
-		for (const stage2Model of stage2Models) {
-			if (stage1Model.src == stage2Model.src) {
-				// Add all the targets of stageModel1 to stageModel2's relation
-				for (const target of stage1Model.targets) {
-					stage2Model.relations.push({
-						type: stage1Model.type,
-						target
-					});
+		for (const model of models) {
+			if (model.name == params.src) {
+				for (const target of params.targets) {
+					const match = models.filter(m => m.name == target)[0];
+					if (match) model.relations.push(new Relation(params.type, match));
 				}
 
-				modelExistsInStage2 = true;
+				srcExists = true;
 				break;
 			}
 		}
 
-		if (!modelExistsInStage2) {
-			stage2Models.push({
-				src: stage1Model.src,
-				relations: stage1Model.targets.map(target => ({
-					type: stage1Model.type,
-					target
-				}))
-			});
-		}
+		if (!srcExists) throw new Error(`Model does not exist - '${params.src}' in relation '${relation}'`);
 	}
-
-	// Match stage2Models data with corresponding model in models array
-	for (const model of models) {
-		for (const stage2Model of stage2Models) {
-			if (model.name.toLowerCase() == stage2Model.src.toLowerCase()) {
-				// Find matching related model in models array
-				for (const stage2ModelRelation of stage2Model.relations) {
-					for (const targetModel of models) {
-						if (targetModel.name.toLowerCase() == stage2ModelRelation.target.toLowerCase()) {
-							model.addRelation(new Relation(stage2ModelRelation.type, targetModel));
-							break;
-						}
-					}
-				}
-				break;
-			}
-		}
-	}
-};
+}
 
 /**
- * Resolves circular dependencies between models by introducing a bridge model between the dependent models
- *
- * @param {Model[]} models The array of models
+ * Resolves circular dependencies between models by introducing
+ * a bridge model between the src model and its dependent models
+ * @param {Model[]} models The list of models
  */
 const resolveCircularDependencies = models => {
-	const dependencyPairs = [];
+	const circularDependencies = [];
 
-	// Compare a model to all of its related models relation
-	// models (not a mistake) to see which one also depends on it
-	for (const model of models) {
-		for (const relation of model.relations) {
-			const relationIndex = model.relations.indexOf(relation);
+	// Compare a model to all of its related models which also depends on it
+	for (const lModel of models) {
+		for (const [relationIndex, relation] of lModel.relations.entries()) {
+			const rModel = relation.model;
+			const rModelCircularRelation = rModel.relations.filter(r => r.model == lModel && r.type)[0];
 
-			for (const relatedModelRelation of relation.model.relations) {
-				const relatedModelRelationIndex = relation.model.relations.indexOf(relatedModelRelation);
-
-				if (relatedModelRelation.model == model) {
-					model.relations.splice(relationIndex, 1);
-					relation.model.relations.splice(relatedModelRelationIndex, 1);
-
-					dependencyPairs.push({
-						firstModel: model,
-						secondModel: relation.model
-					});
-				}
+			// If circular dependency exists...
+			if (rModelCircularRelation) {
+				// ...splice it from both models...
+				lModel.relations.splice(relationIndex, 1);
+				rModel.relations.splice(rModel.relations.indexOf(rModelCircularRelation), 1);
+				// ... and create a dependency pair for them
+				circularDependencies.push({ lModel, rModel });
 			}
 		}
 	}
 
-	// For each model-pair entry in the dependencyPairs,
-	// create a bridging model and link to the models of the pair
-	for (const pair of dependencyPairs) {
-		const bridgeModelName = pair.firstModel.name + pair.secondModel.name;
-		const bridgeModel = new Model(bridgeModelName);
-		pair.firstModel.relations.push(new Relation("HAS_MANY", bridgeModel));
-		pair.secondModel.relations.push(new Relation("HAS_MANY", bridgeModel));
+	// For each dependencyPair, create a bridge model and link to the models of the pair
+	for (const dep of circularDependencies) {
+		const bridgeModel = new Model(dep.lModel.name + dep.rModel.name);
+		dep.lModel.relations.push(new Relation("HAS_MANY", bridgeModel));
+		dep.rModel.relations.push(new Relation("HAS_MANY", bridgeModel));
 		models.push(bridgeModel);
 	}
 };
@@ -144,23 +81,22 @@ const resolveCircularDependencies = models => {
 /**
  * Generates a set of relations which are the reverse of the current set.
  * E.g. If a User HAS_ONE Post, the corresponding reverse relation would be Post BELONGS_TO_ONE User.
- *
  * @param {Model[]} models The array of models
  */
 const generateReversedRelations = models => {
 	for (const model of models) {
 		for (const relation of model.relations) {
 			if (relation.type == "HAS_ONE" || relation.type == "HAS_MANY") {
-				relation.model.relations.push(new Relation(relation.getReversedType(), model));
+				relation.model.relations.push(new Relation(relation.reverseType, model));
 			}
 		}
 	}
 };
 
 /**
- * Sorts the models by level of dependence. This means the models which do not have dependencies are placed
- * first before the dependent models
- *
+ * Sorts the models by level of dependence. This means the models are
+ * arranged according to number of dependencies. At the end of this sort,
+ * all models will have their dependents placed first before them
  * @param {Model[]} models The array of models
  */
 const sortModels = models => {
@@ -168,13 +104,10 @@ const sortModels = models => {
 
 	while (sortedModels.length != models.length) {
 		for (const model of models) {
-			let allDependenciesExist = true;
-
-			for (const relation of model.relations) {
-				if (relation.type == "BELONGS_TO_ONE" && !sortedModels.includes(relation.model)) {
-					allDependenciesExist = false;
-				}
-			}
+			const allDependenciesExist = model.relations.reduce((v, r) => {
+				if (r.type == "BELONGS_TO_ONE" && !sortedModels.includes(r.model)) return false;
+				return v && true;
+			}, true);
 
 			if (allDependenciesExist && !sortedModels.includes(model)) {
 				sortedModels.push(model);
@@ -185,10 +118,3 @@ const sortModels = models => {
 	models.splice(0, models.length);
 	models.push(...sortedModels);
 };
-
-/**
- * Determines whether or not a relation type is valid
- */
-const isRelationTypeIsValid = type => ["HAS_ONE", "HAS_MANY", "BELONGS_TO_ONE", "MANY_TO_MANY"].includes(type);
-
-module.exports = { parse };

@@ -6,12 +6,13 @@ const { path } = require("../src/utils");
 
 describe("Feature test for the 'generate' command", () => {
 	before(function() {
-		path.destroy(path.resolve("src/"));
+		path.destroy(path.resolve("src"));
 		init();
 	});
 
 	after(function() {
-		path.destroy(path.resolve("src/"));
+		path.destroy(path.resolve("src"));
+		path.destroy(path.resolve("agility.js"));
 	});
 
 	it("should create a User model", () => {

@@ -2,6 +2,6 @@ module.exports = {
 	diff: true,
 	recursive: "./test/**/*.test.js",
 	extension: ["js"],
-	timeout: 60000,
+	timeout: 10000,
 	ui: "bdd"
 };

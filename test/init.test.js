@@ -1,7 +1,6 @@
 process.env.NODE_ENV = "testing";
 
 const fse = require("fs-extra");
-const nodePath = require("path");
 const { assert } = require("chai");
 const { init } = require("../src/lib");
 const { path, file } = require("../src/utils");
@@ -23,6 +22,6 @@ describe("Feature test for the 'init' command", () => {
 
 	it("should verify that agility.js content is same as the template file", () => {
 		const fileContent = file.read(agilityPath);
-		assert.equal(file.render(nodePath.join(__dirname, "../src/template/agility.js.ejs")), fileContent);
+		assert.equal(file.render(path.resolve("../src/template/agility.js.ejs", __dirname)), fileContent);
 	});
 });

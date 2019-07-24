@@ -16,11 +16,6 @@ function Model(n) {
 	this.relations = [];
 }
 
-Model.prototype.addRelation = function(relation) {
-	if (!relation) return;
-	this.relations.push(relation);
-};
-
 Model.prototype.existsInProject = function() {
 	return path.exists(this.filepath);
 };
