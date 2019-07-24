@@ -39,8 +39,8 @@ Model.prototype.relationMappings = function() {
 Model.prototype.isRelatedTo = function(otherModel, relationType) {
 	try {
 		const methodDefinition = this.relationMappings();
-		const returnStatements = misc.searchCodeTree(methodDefinition, "ReturnStatement", () => true);
-		const objectExpression = misc.searchCodeTree(returnStatements, "ObjectExpression", () => true)[0];
+		const returnStatement = misc.searchCodeTree(methodDefinition, "ReturnStatement", () => true)[0];
+		const objectExpression = misc.searchCodeTree(returnStatement, "ObjectExpression", () => true)[0];
 
 		if (!(otherModel instanceof Model)) otherModel = new Model(otherModel);
 		const objectionRelations = {
@@ -53,8 +53,9 @@ Model.prototype.isRelatedTo = function(otherModel, relationType) {
 			const relationObject = p.value.properties[0];
 			const relationMatch =
 				relationObject.value.type == "MemberExpression" && objectionRelations[relationObject.value.property.name] == relationType;
-			const modelClassObject = p.value.properties[1];
+
 			const fileNameRegex = /(^[\w|-]+)?([\w|-]+)(\\.js)?/;
+			const modelClassObject = p.value.properties[1];
 			const modelClassMatch =
 				modelClassObject.value.type == "CallExpression" &&
 				modelClassObject.value.arguments[0].type == "Literal" &&

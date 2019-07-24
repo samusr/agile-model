@@ -23,6 +23,7 @@ module.exports = function(lModelName, rModelName, { relationType }) {
 		if (!rModel.isRelatedTo(lModel, relation.reverseType)) {
 			ensureRelationMappingsFunctionExists(rModel);
 			injectRelationCode(rModel, lModel, relation.reverseType);
+			// For the related model
 		}
 	} catch (err) {
 		log.error(err);
@@ -93,3 +94,5 @@ function injectRelationCode(model, otherModel, relationType) {
 
 	file.write(model.filepath, prettier.format(recast.print(modelCode).code, misc.prettierConfig));
 }
+
+// function createFindByRelatedModelIdDBFile = (relationType)
