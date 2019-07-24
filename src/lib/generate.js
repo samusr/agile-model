@@ -20,24 +20,13 @@ function createModelFile(n) {
 
 function createMigrationFile(n) {
 	const model = new Model(n);
-	const migrationName = `${formattedTime()}_create_${model.tablename}_table.js`;
+	const migrationName = `${misc.formattedTime()}_create_${model.tablename}_table.js`;
 	const templatePath = path.resolve("../template/server/migrations/migration.js.ejs", __dirname);
 	const content = prettier.format(file.render(templatePath, { model }), misc.prettierConfig);
 	const migrationPath = path.resolve(`${MIGRATIONS_DIRECTORY}/${migrationName}`);
 
 	file.create(migrationPath);
 	file.write(migrationPath, content);
-}
-
-function formattedTime() {
-	const d = new Date();
-	const dateComponent = `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}`;
-	const timeComponent = `${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}_${pad(d.getMilliseconds())}`;
-	return dateComponent + timeComponent;
-}
-
-function pad(str) {
-	return str.toString().padStart(2, "0");
 }
 
 function createDBServiceFiles(n) {

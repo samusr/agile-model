@@ -84,6 +84,17 @@ function searchCodeTree(rootNode, type, evalFn, depth = 0) {
 	return foundNodes;
 }
 
+function formattedTime() {
+	const d = new Date();
+	const dateComponent = `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}`;
+	const timeComponent = `${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}_${pad(d.getMilliseconds())}`;
+	return dateComponent + timeComponent;
+}
+
+function pad(str) {
+	return str.toString().padStart(2, "0");
+}
+
 const prettierConfig = {
 	parser: "babel",
 	printWidth: 150,
@@ -95,4 +106,4 @@ const prettierConfig = {
 	trailingComma: "none"
 };
 
-module.exports = { arrayToStringShim, readAgilityConfig, updateIndex, searchCodeTree, prettierConfig };
+module.exports = { arrayToStringShim, readAgilityConfig, updateIndex, searchCodeTree, formattedTime, pad, prettierConfig };

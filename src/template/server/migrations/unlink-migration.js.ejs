@@ -1,0 +1,12 @@
+exports.up = function(knex) {
+    return knex.schema.alterTable("<%= lModel.tablename %>", table => {
+        table.dropForeign("<%= rModel.singular_tablename %>_id");
+        table.dropColumn("<%= rModel.singular_tablename %>_id");
+    });
+};
+
+exports.down = function(knex) {
+	return knex.schema.alterTable("<%= lModel.tablename %>", table => {
+        table.integer("<%= rModel.singular_tablename %>_id").references("<%= lModel.tablename %>.id").index();
+    });
+};
