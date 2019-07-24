@@ -3,7 +3,7 @@ const prettier = require("prettier");
 const { Model, Relation, Association } = require("../models");
 const { file, path, misc } = require("../utils");
 
-module.exports = function(lModelName, rModelName, { relationType }) {
+module.exports = function(lModelName, rModelName, { relationType, createLinkMigration }) {
 	misc.readAgilityConfig();
 	const relation = new Relation(relationType);
 	const lModel = new Model(lModelName);
@@ -17,16 +17,20 @@ module.exports = function(lModelName, rModelName, { relationType }) {
 	if (!lModel.isRelatedTo(rModel, relation.type)) {
 		ensureRelationMappingsFunctionExists(lModel);
 		injectRelationCode(lModel, rModel, relation.type);
+
 		if (relation.type == "BELONGS_TO_ONE") {
 			createFindByRelationIdDBFile(lModel, rModel);
+			if (createLinkMigration) createLinkMigrationFile(lModel, rModel);
 		}
 	}
 
 	if (!rModel.isRelatedTo(lModel, relation.reverseType)) {
 		ensureRelationMappingsFunctionExists(rModel);
 		injectRelationCode(rModel, lModel, relation.reverseType);
+
 		if (relation.reverseType == "BELONGS_TO_ONE") {
 			createFindByRelationIdDBFile(rModel, lModel);
+			if (createLinkMigration) createLinkMigrationFile(rModel, lModel);
 		}
 	}
 };
@@ -106,4 +110,14 @@ function createFindByRelationIdDBFile(model, relatedModel) {
 		file.write(`${dbServicePath}/${association.dbRelationFileName}`, content);
 		misc.updateIndex(dbServicePath, "file");
 	}
+}
+
+function createLinkMigrationFile(model, relatedModel) {
+	const migrationName = `${misc.formattedTime()}_add_${relatedModel.singular_tablename}_id_to_${model.tablename}_table.js`;
+	const templatePath = path.resolve("../template/server/migrations/link-migration.js.ejs", __dirname);
+	const content = prettier.format(file.render(templatePath, { lModel: model, rModel: relatedModel }), misc.prettierConfig);
+	const migrationPath = path.resolve(`${MIGRATIONS_DIRECTORY}/${migrationName}`);
+
+	file.create(migrationPath);
+	file.write(migrationPath, content);
 }

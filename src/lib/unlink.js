@@ -16,6 +16,7 @@ module.exports = function(lModelName, rModelName, { relationType, createUnlinkMi
 	// If models are related, proceed to unlink them
 	if (lModel.isRelatedTo(rModel, relation.type)) {
 		removeRelationCode(lModel, rModel, relation.type);
+
 		if (relation.type == "BELONGS_TO_ONE") {
 			removeFindByRelationIdDBFile(lModel, rModel);
 			if (createUnlinkMigration) createUnlinkMigrationFile(lModel, rModel);
@@ -24,6 +25,7 @@ module.exports = function(lModelName, rModelName, { relationType, createUnlinkMi
 
 	if (rModel.isRelatedTo(lModel, relation.reverseType)) {
 		removeRelationCode(rModel, lModel, relation.reverseType);
+
 		if (relation.reverseType == "BELONGS_TO_ONE") {
 			removeFindByRelationIdDBFile(rModel, lModel);
 			if (createUnlinkMigration) createUnlinkMigrationFile(rModel, lModel);
@@ -78,7 +80,7 @@ function removeFindByRelationIdDBFile(model, relatedModel) {
 	}
 }
 
-async function createUnlinkMigrationFile(model, relatedModel) {
+function createUnlinkMigrationFile(model, relatedModel) {
 	const migrationName = `${misc.formattedTime()}_drop_${relatedModel.singular_tablename}_id_from_${model.tablename}_table.js`;
 	const templatePath = path.resolve("../template/server/migrations/unlink-migration.js.ejs", __dirname);
 	const content = prettier.format(file.render(templatePath, { lModel: model, rModel: relatedModel }), misc.prettierConfig);

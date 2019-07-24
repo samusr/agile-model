@@ -17,6 +17,7 @@ commander
 commander
 	.command("link <lModel> <rModel>")
 	.option("-t, --relation-type <type>", "Relation type. Supported values are HAS_MANY, HAS_ONE and BELONGS_TO_ONE")
+	.option("-c, --create-link-migration", "Create a migration to add foreign key to dependent model's table")
 	.description(
 		"Creates a relation between the lModel (owner model) and rModel (owned model). (E.g. User HAS_MANY Post. User here is the owner model (I.e. lModel) and Post is the ownedModel (I.e. rModel))"
 	)
