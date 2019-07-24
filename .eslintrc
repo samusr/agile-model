@@ -1,22 +1,16 @@
 {
-    "extends": "eslint:recommended",
-    "parserOptions": {
-        "ecmaVersion": 2017,
-        "ecmaFeatures": {
-            "experimentalObjectRestSpread": true
-        }
-    },
-    "env": {
-        "node": true,
-        "es6": true,
-        "mocha": true
-    },
-    "rules": {
-        "no-console": "off",
-        "semi": ["error", "always"],
-        "handle-callback-err": "error"
-    },
-    "globals": {
-        "logger": false
-    }
+	"extends": "eslint:recommended",
+	"parserOptions": {
+		"ecmaVersion": 2018
+	},
+	"env": {
+		"node": true,
+		"es6": true,
+		"mocha": true
+	},
+	"rules": {
+		"no-console": "off",
+		"semi": ["error", "always"],
+		"handle-callback-err": "error"
+	}
 }
