@@ -102,7 +102,7 @@ function injectRelationCode(model, otherModel, relationType) {
 function createFindByRelationIdDBFile(model, relatedModel) {
 	const association = new Association(relatedModel, model);
 	const modelFileNameWithoutExtension = model.filename.split(".")[0];
-	const dbServicePath = path.resolve(`${DATABASE_DIRECTORY}/${modelFileNameWithoutExtension}/`);
+	const dbServicePath = path.resolve(`src/server/services/db/${modelFileNameWithoutExtension}/`);
 
 	if (!path.exists(`${dbServicePath}/${association.dbRelationFileName}`)) {
 		file.create(`${dbServicePath}/${association.dbRelationFileName}`);
@@ -116,7 +116,7 @@ function createLinkMigrationFile(model, relatedModel) {
 	const migrationName = `${misc.formattedTime()}_add_${relatedModel.singular_tablename}_id_to_${model.tablename}_table.js`;
 	const templatePath = path.resolve("../template/server/migrations/link-migration.js.ejs", __dirname);
 	const content = prettier.format(file.render(templatePath, { lModel: model, rModel: relatedModel }), misc.prettierConfig);
-	const migrationPath = path.resolve(`${MIGRATIONS_DIRECTORY}/${migrationName}`);
+	const migrationPath = path.resolve(`src/server/migrations/${migrationName}`);
 
 	file.create(migrationPath);
 	file.write(migrationPath, content);

@@ -1,8 +1,5 @@
 module.exports = app => {
-    app.use("/api", require("./api"));
-    <% for (const portal of portals) { %>
-    app.use("/<%= portal %>/*", (req, res) => {
-        res.render("<%= portal %>/index");
+    app.get("/", (req, res) => {
+        res.send("Welcome to my agile-model project");
     });
-    <% } %>
 };

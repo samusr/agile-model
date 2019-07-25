@@ -12,7 +12,7 @@ function Model(n) {
     I.e. If a 'User HAS_MANY Post', then a Post should
     have a 'find-by-user-id.js' db file */
 	this.singular_tablename = singular(this.tablename);
-	this.filepath = path.resolve(`${MODELS_DIRECTORY}/${this.filename}`);
+	this.filepath = path.resolve(`src/server/models/${this.filename}`);
 	this.relations = [];
 }
 

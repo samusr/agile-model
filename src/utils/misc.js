@@ -21,22 +21,7 @@ function arrayToStringShim() {
 function readAgilityConfig() {
 	const agilityPath = path.resolve("agility.js");
 	if (!path.exists(agilityPath)) throw new Error("Cannot find 'agility.js' config file. Run 'agile-model init' first");
-
 	const config = require(agilityPath);
-	if (
-		!config.models ||
-		!config.models.directory ||
-		!config.migrations ||
-		!config.migrations.directory ||
-		!config.database ||
-		!config.database.directory
-	)
-		// TODO: Add links to READMe in errors
-		throw new Error("Invalid configuration. Ensure that your config file is setup correctly");
-
-	global.MODELS_DIRECTORY = config.models.directory;
-	global.MIGRATIONS_DIRECTORY = config.migrations.directory;
-	global.DATABASE_DIRECTORY = config.database.directory;
 	return config;
 }
 

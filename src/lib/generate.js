@@ -23,7 +23,7 @@ function createMigrationFile(n) {
 	const migrationName = `${misc.formattedTime()}_create_${model.tablename}_table.js`;
 	const templatePath = path.resolve("../template/server/migrations/migration.js.ejs", __dirname);
 	const content = prettier.format(file.render(templatePath, { model }), misc.prettierConfig);
-	const migrationPath = path.resolve(`${MIGRATIONS_DIRECTORY}/${migrationName}`);
+	const migrationPath = path.resolve(`src/server/migrations/${migrationName}`);
 
 	file.create(migrationPath);
 	file.write(migrationPath, content);
@@ -32,7 +32,7 @@ function createMigrationFile(n) {
 function createDBServiceFiles(n) {
 	const model = new Model(n);
 	const modelFileNameWithoutExtension = model.filename.split(".")[0];
-	const dbServicePath = path.resolve(`${DATABASE_DIRECTORY}/${modelFileNameWithoutExtension}/`);
+	const dbServicePath = path.resolve(`src/server/services/db/${modelFileNameWithoutExtension}/`);
 	folder.create(dbServicePath);
 
 	const dbServiceFileParams = [
@@ -50,11 +50,12 @@ function createDBServiceFiles(n) {
 
 	for (const params of dbServiceFileParams) {
 		const filePath = `${dbServicePath}/${params[0]}`;
+		const templatePath = "../template/server/services/db/entity/" + params[1];
+		const content = prettier.format(file.render(path.resolve(templatePath, __dirname), args), misc.prettierConfig);
+
 		file.create(filePath);
-		const targetFile = "../template/server/services/db/entity/" + params[1];
-		const content = prettier.format(file.render(path.resolve(targetFile, __dirname), args), misc.prettierConfig);
 		file.write(filePath, content);
 	}
 
-	misc.updateIndex(path.resolve(DATABASE_DIRECTORY), "folder");
+	misc.updateIndex(path.resolve("src/server/services/db"), "folder");
 }

@@ -1,6 +1,6 @@
 exports.up = function(knex) {
     return knex.schema.alterTable("<%= lModel.tablename %>", table => {
-        table.integer("<%= rModel.singular_tablename %>_id").references("<%= lModel.tablename %>.id").index();
+        table.integer("<%= rModel.singular_tablename %>_id").references("<%= rModel.tablename %>.id").index();
     });
 };
 

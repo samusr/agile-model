@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 const commander = require("commander");
-const { init, generate, link, unlink } = require("../src/lib");
+const { init, generate, link, unlink, setup } = require("../src/lib");
 const { misc } = require("../src/utils");
 misc.arrayToStringShim();
 
@@ -30,17 +30,9 @@ commander
 	.description("Removes a relation between the lModel (owner model) and rModel (owned model)")
 	.action(unlink);
 
-// commander
-// 	.command("setup")
-// 	.description(
-// 		"Sets the project up with an objection config file, services, models and migrations folders.\n\t\t       " +
-// 			"If there's an agility.js file in the root, it is used to setup the models and relations."
-// 	)
-// 	.action(setup);
-
-// commander
-// 	.command("create-portal <portalName>")
-// 	.description("Creates a new portal group in the client-side of your application.")
-// 	.action(createPortal);
+commander
+	.command("setup")
+	.description("Creates the required project files")
+	.action(setup);
 
 commander.parse(process.argv);

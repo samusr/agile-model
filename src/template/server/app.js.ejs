@@ -10,6 +10,12 @@ const mongoose = require("mongoose");
 const helmet = require("helmet");
 const csurf = require("csurf");
 
+const winston = require("./config/winston");
+console.nativeError = console.error;
+console.error = function(...args) {
+	winston.error(args);
+};
+
 const app = express();
 
 //=====================SETUP MONGO DB==============================
